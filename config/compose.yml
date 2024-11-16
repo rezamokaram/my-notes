@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    pull_policy: never
+    image: config_lab
+    container_name: config_lab
+    hostname: config_lab
+    env_file:
+      - ./.env
