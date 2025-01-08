@@ -1,7 +1,0 @@
-agile and scrum -> mohammad 4 shanbe
-package error golang -> hossein 3 shanbe
-solid -> sajad 1 shanbe 
-memory management and garbage collector -> mahdi 0 shanbe
-
-acid
-design patterns
