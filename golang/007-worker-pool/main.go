@@ -65,7 +65,6 @@ func main() {
 	}
 	pool.Wait()
 
-
 	// for i := 0; i < 5; i++ {
 	// 	taskID := i
 	// 	pool.Submit(func() {
@@ -73,7 +72,6 @@ func main() {
 	// 	})
 	// }
 	// pool.Wait()
-
 
 	pool.Stop()
 }

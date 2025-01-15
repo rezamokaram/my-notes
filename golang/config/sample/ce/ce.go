@@ -8,7 +8,7 @@ import (
 
 type (
 	Config struct {
-		App      APP      `env-required:"true" json:"app"`
+		App APP `env-required:"true" json:"app"`
 		// Postgres POSTGRES `env-required:"true" json:"postgres"`
 	}
 

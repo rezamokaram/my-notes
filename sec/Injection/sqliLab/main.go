@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"gorm.io/gorm"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
@@ -53,7 +53,6 @@ type User struct {
 	ID   uint   `gorm:"primaryKey,autoIncrement" json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
-
 
 func dataDump() {
 	db.Save(&User{

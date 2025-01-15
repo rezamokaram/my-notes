@@ -1,11 +1,11 @@
 package main
 
-import(
-	// "sync"
+import (
+// "sync"
 )
 
 func main() {
-    // a := sync.Map{
+	// a := sync.Map{
 	// 	mu: new(sync.Mutex)
 	// }
 
@@ -15,7 +15,7 @@ func main() {
 	// 	}()
 	// }
 
-    select{} // block-forever trick
+	select {} // block-forever trick
 }
 
 // fatal error: concurrent map iteration and map write

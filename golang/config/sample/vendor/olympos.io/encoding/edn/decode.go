@@ -92,7 +92,6 @@ func (ute UnknownTagError) Error() string {
 // When unmarshaling strings, invalid UTF-8 or invalid UTF-16 surrogate pairs
 // are not treated as an error. Instead, they are replaced by the Unicode
 // replacement character U+FFFD.
-//
 func Unmarshal(data []byte, v interface{}) error {
 	return newDecoder(bufio.NewReader(bytes.NewBuffer(data))).Decode(v)
 }

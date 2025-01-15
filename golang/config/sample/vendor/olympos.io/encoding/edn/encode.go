@@ -57,6 +57,7 @@ import (
 // becomes a member of the map unless
 //   - the field's tag is "-", or
 //   - the field is empty and its tag specifies the "omitempty" option.
+//
 // The empty values are false, 0, any
 // nil pointer or interface value, and any array, slice, map, or string of
 // length zero. The map's default key is the struct field name as a keyword,
@@ -64,34 +65,34 @@ import (
 // the struct field's tag value is the key name, followed by an optional comma
 // and options. Examples:
 //
-//   // Field is ignored by this package.
-//   Field int `edn:"-"`
+//	// Field is ignored by this package.
+//	Field int `edn:"-"`
 //
-//   // Field appears in EDN as key :my-name.
-//   Field int `edn:"myName"`
+//	// Field appears in EDN as key :my-name.
+//	Field int `edn:"myName"`
 //
-//   // Field appears in EDN as key :my-name and
-//   // the field is omitted from the object if its value is empty,
-//   // as defined above.
-//   Field int `edn:"my-name,omitempty"`
+//	// Field appears in EDN as key :my-name and
+//	// the field is omitted from the object if its value is empty,
+//	// as defined above.
+//	Field int `edn:"my-name,omitempty"`
 //
-//   // Field appears in EDN as key :field (the default), but
-//   // the field is skipped if empty.
-//   // Note the leading comma.
-//   Field int `edn:",omitempty"`
+//	// Field appears in EDN as key :field (the default), but
+//	// the field is skipped if empty.
+//	// Note the leading comma.
+//	Field int `edn:",omitempty"`
 //
 // The "str", "key" and "sym" options signals that a field name should be
 // written as a string, keyword or symbol, respectively. If none are specified,
 // then the default behaviour is to emit them as keywords. Examples:
 //
-//    // Default behaviour: field name will be encoded as :foo
-//    Foo int
+//	// Default behaviour: field name will be encoded as :foo
+//	Foo int
 //
-//    // Encode Foo as string with name "string-foo"
-//    Foo int `edn:"string-foo,str"`
+//	// Encode Foo as string with name "string-foo"
+//	Foo int `edn:"string-foo,str"`
 //
-//    // Encode Foo as symbol with name sym-foo
-//    Foo int `edn:"sym-foo,sym"`
+//	// Encode Foo as symbol with name sym-foo
+//	Foo int `edn:"sym-foo,sym"`
 //
 // Anonymous struct fields are usually marshaled as if their inner exported fields
 // were fields in the outer struct, subject to the usual Go visibility rules amended
@@ -123,15 +124,15 @@ import (
 // If you want to ensure that a value is encoded as a map, you can specify that
 // as follows:
 //
-//    // Encode Foo as a map, instead of the default set
-//    Foo map[int]bool `edn:",map"`
+//	// Encode Foo as a map, instead of the default set
+//	Foo map[int]bool `edn:",map"`
 //
 // Arrays and slices are encoded as vectors by default. As with maps and sets,
 // you can specify that a field should be encoded as a list instead, by using
 // the option "list":
 //
-//    // Encode Foo as a list, instead of the default vector
-//    Foo []int `edn:",list"`
+//	// Encode Foo as a list, instead of the default vector
+//	Foo []int `edn:",list"`
 //
 // Pointer values encode as the value pointed to.
 // A nil pointer encodes as the nil EDN object.
@@ -146,7 +147,6 @@ import (
 // EDN cannot represent cyclic data structures and Marshal does not
 // handle them. Passing cyclic structures to Marshal will result in
 // an infinite recursion.
-//
 func Marshal(v interface{}) ([]byte, error) {
 	e := &encodeState{}
 	err := e.marshal(v)

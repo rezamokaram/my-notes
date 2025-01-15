@@ -8,10 +8,10 @@ import (
 )
 
 func main() {
-	var(
+	var (
 		cleanEnvPath string
-		dotEnvPath string
-		viperPath string
+		dotEnvPath   string
+		viperPath    string
 	)
 
 	flag.StringVar(&cleanEnvPath, "cleanenv", "./ce/config.yaml", "path to clean env config file")
