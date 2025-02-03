@@ -5,33 +5,33 @@
 sharing the data bases between microservices tightly couples, their code bases and their teams that causing a lot of coordination overhead.  
 
 ## Rule
-first rule of microservises databases is we must to have db per service  
+first rule of microservices databases is we must to have db per service  
 if someone needs to access or change this data, we must use service api  
 this helps us to scale our org:
-if one team needs to change db schema or technology, that change will be compeletly transparent to the consumers of their api  
+if one team needs to change db schema or technology, that change will be completely transparent to the consumers of their api  
 also if we need to change api, we can make a new version of api that helps other teams to migrate from old one to new api  
 
 **important note**
-if we do cache or store data that blongs to another microservice, then we loose strict consistency and have to settle eventul consistency. 
+if we do cache or store data that belongs to another microservice, then we loose strict consistency and have to settle eventually consistency. 
 
 ## Down side
 - added latency  
 - no more "join" operation
 - no more transactions
 
-# 3.2. DRY (Don`t repeate your self)  
+# 3.2. DRY (Don`t repeat your self)    
 
 ## Principle
-if you repeat the same logic or data (constant values) you should consolidat it a shared:
+if you repeat the same logic or data (constant values) you should consolidate it a shared:
 - method
 - class
 - variable
 
-## Chalenges of shared libraries 
+## Challenges of shared libraries  
 - tight coupling: each change in that lib needs to communicate with all teams that use it(api changes)(time waster). 
-- even if the api do not change over an update to that lib we need **Rebuild, retest & redeployed** all microsevices that use it.
-- every bug or vulneravility in that lib impacts all microservices.
-- dependancy hell: if our microservice using lib a that use lib b internally; then our code uses lib b directly in another part of code, then on each update that the libs use new version of lib b, we must to do some unneccessary code changes to microservice code base. (two version of a lib breaks dry) (also it make our buil time longe and also increases size of the binary file)
+- even if the api do not change over an update to that lib we need **Rebuild, retest & redeployed** all microservices that use it.
+- every bug or vulnerability in that lib impacts all microservices.
+- dependency hell: if our microservice using lib a that use lib b internally; then our code uses lib b directly in another part of code, then on each update that the libs use new version of lib b, we must to do some unnecessary code changes to microservice code base. (two version of a lib breaks dry) (also it make our build time longe and also increases size of the binary file)
 
 ## Alternatives to shared libraries in microservices architecture
 - new microservices
@@ -51,10 +51,10 @@ if you repeat the same logic or data (constant values) you should consolidat it 
 
 **Myth:** each team can choose their stack including database, tech stack, frameworks, tools & APIs
 
-**resoans**
+**reasons**
 
 1. upfront cost of infrastructure
-2. infrastruvture maintenance 
+2. infrastructure maintenance 
 3. steep learning curve 
 3. non-uniform api
 
@@ -69,42 +69,42 @@ ans: well yes, but the key to a successful microservices is the balance between 
 - security and data compliance 
 
 2. Tier 2: Freedom with boundaries
-- programing languages 
+- programming languages 
 - database technology
 
-3. Tier 3: Cpmplete Autonomy
-- release proccess
+3. Tier 3: Complete Autonomy
+- release processes
 - release schedule and frequency
 - custom scripts for local development and testing
 - Documentation
 - on boarding for new developers
 
-## factors in team autobony boubdaries
-1. size / influence of DevOps / SRE team: tipiclly, companies with more dominant DevOps or Sre teams lean moer towards common standards, which makes their life managing the system easier. 
+## factors in team autonomy boundaries
+1. size / influence of DevOps / SRE team: typically, companies with more dominant DevOps or Sre teams lean more towards common standards, which makes their life managing the system easier. 
 2. seniority of developers: generally, more senior the developers are, the more freedom they prefer in setting up or building their own infrastructure. 
 3. company's culture: for example, some companies just stick in to one programming languages like golang, and don't allow any freedom in choosing other programming languages. -> benefit: we can move the developers between teams with very little overhead.
 
-# 3.4. micro-frontends architecture pattern
+# 3.4. micro-frontend services architecture pattern
 
-- we have all same problems with monolithic backend in monolothic frontend
+- we have all same problems with monolithic backend in monolithic frontend
 - we should to migrate to micro frontend architecture
 
 **benefits**
-- replaced the complex monoloyhic codebase with small and much more managable code bases. each for a different micro-frontend. 
+- replaced the complex monolithic codebase with small and much more manageable code bases. each for a different micro-frontend. 
 - full-stack ownership of each micro-frontend
 - separate ci/cd
 - separate release schedule
 
 **best practices**
-- micro-frontends are loaded at runtime 
+- micro-frontend services are loaded at runtime 
 - no share state in the browser
-- internal commuinication through: coustom events, callbacks & address bar
+- internal communication through: custom events, callbacks & address bar
 
 # 3.5. api management microservices architecture
 
 **3 types of api**
-1. private: to our microservices whitin the company boundary
-2. partner: to external bussinesses
+1. private: to our microservices within the company boundary
+2. partner: to external businesses
 3. public: to user
 
 ## api management problems
@@ -115,7 +115,7 @@ ans: well yes, but the key to a successful microservices is the balance between 
 
 ## api gateway pattern
 
-it is responsiblle for all the api management
+it is responsible for all the api management
 
 apigateway must route the request to the destination service(transform the data to the service input and service out put to api format)
 load balancer task is to balance the requests for a single service
@@ -137,19 +137,19 @@ we deployed a lb for each micro service
 
 ## motivation
 
-sync requests have a high response time -> it soleves in eda with another solution
-also load blancing in eda is better
+sync requests have a high response time -> it solves in eda with another solution
+also load balancing in eda is better
 
-## main consept of "EVENT"
+## main concept of "EVENT"
 
 - fact, action, state change
 - always immutable
-- can be stored idefinetly
-- can be consumed multiple times by different servicesa 
+- can be stored indefinitely
+- can be consumed multiple times by different services 
 
 ## request & response / event-driven model
-- synchoronous / async
-- inversion of controll
+- synchronous / async
+- inversion of control
 - loose coupling
 
 # 4.2. use case and patterns of eda
