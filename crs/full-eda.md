@@ -1,3 +1,10 @@
+# 1.1.  
+
+
+---  
+---  
+--- 
+
 # 2.1.  
 
 
@@ -313,3 +320,83 @@ reasons:
 
 **note again:** this brilliant pattern is not for free. we can only implement it with eventual consistent solution and we loss the string consistency. which may or may be not good enough depending on your use case.
 
+---  
+---  
+---  
+
+# 6.1. testing pyramid for microservices
+
+## recap of the testing pyramid for monolithic applications  
+1. functional / end-to-end tests
+2. integration tests
+3. unit tests
+
+top is 1 and down is 3
+
+**unit test:** test a small logic such as a class or module in isolation. unit test are cheapest to maintain because they are small, easy to write and fast to execute. we should also create the highest number of those tests compared to other tests. thats the reason of why they are located at the bottom of test pyramid.
+this type of test give us least confidence, because this type tests each unit in isolation. once we run the application, we have no idea if all those units works together or not.
+
+**integration test:**
+those tests verify that different units and systems we integrated with, such as database and message broker actually work together.
+- bigger
+- slower
+- medium number
+- more confidence
+
+**functional or end-to-end test:**
+those test run our entire system, which includes the ui, our entire application and the database, and they verify that it works as intended.
+- each such test should test a particular user journey or business requirement and ensure that it matches the specification.
+- heaviest
+- most complex
+- slowest to run
+- least number of them compare to other tests
+- highest confidence
+
+## how to apply the testing pyramid microservices architecture
+
+each microservice team should make the exact pyramid for their own microservice and database. then we treat each microservice as small unit that is part of the larger system and put it in a larger testing pyramid.
+
+so just like in the case of unit tests, testing each microservice in isolation is essential, but not enough to increase the confidence that all those microservice can actually talk to each other at runtime and work correctly together.
+
+we need to add another layer of integration tests. those integration tests verify that every pair of microservices can talk to each other using the agreed upon API while mocking the rest of our system.  
+to complete this pyramid we need to add the system level end to end tests at the very top. those tests, in theory, should run all of our microservices, front, databases and ... in a test environment and verify that all the individual components work together as expected. 
+
+## challenges of testing microservices and eda
+
+**challenges:**
+1. end-to-end tests:  
+- hard to set up
+- hard to maintain
+- no clarity about ownership
+- one team may block every one
+- low confidence (ignoring failed tests)
+- very costly
+
+company challenges:
+- some companies invest too much on those few tests
+- some other companies do not invest at all
+
+2. integration tests:
+- difficult to run
+- tightly couples teams to each other
+
+# 6.2. Contract tests and production testing
+
+## integration tests using lightweight mocks
+with this solution we don't need to use another microservice for testing our microservice. we just need to mock the API layer..
+there is still another problem with changes in api layer of each microservice. in this case both of microservices passed their tests successfully but after release they cant communicate with each other in production.
+
+## contract tests for synchronous communication
+
+in eda microservices, we make a contract from our event in microservice A and then share it with another team for microservice B. this approach help us to validate that our microservices are using the correct format for events. then we can confidently release it to production.
+
+## end-to-end Tests Alternatives
+
+**blue-green deployment + canary testing**  
+a blue green deployment is a safe way to release a new microservice version to production using two identical production environments without any downtime during the release.
+the blue environment is a set of servers or containers that run our old version, and the green environment is a set of servers or containers that run the new version that we want to release.  once we deployed the new version to the green environment, no real user traffic is going to it. after we run automated and even manual tests on the green environment, we can shift a portion of the production traffic to the green  environment and monitor the new version for performance and functional issues. this process is called canary testing. if we detect an issue we immediately direct traffic back from the green environment to the blue environment with minimal impact on users.  
+on other hand if no issue detected, we direct all the production traffic from the blue environment to the green and gradually decommission the blue environment since its no longer needed.  
+
+---  
+---  
+---  
