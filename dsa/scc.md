@@ -148,6 +148,4 @@ SCC: 3
 SCC: 0 1 2
 ```
 
----
-
-Let me know if you need further explanations or modifications to the code! 🚀
+---  

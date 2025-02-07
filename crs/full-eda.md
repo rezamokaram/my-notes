@@ -1,3 +1,10 @@
+# 2.1.  
+
+
+---  
+---  
+---  
+
 # 3.1. DB per Microservice Principle
 
 ## Motivation
@@ -133,6 +140,10 @@ we deployed a lb for each micro service
 - protocol / data translation
 - authorization (??) and tls termination
 
+---  
+---  
+---  
+
 # 4.1. introduction to eda arch
 
 ## motivation
@@ -222,4 +233,83 @@ we need at least once semantic + corelation id (ident potency for event or item)
 it means each event have its own unique id that identify the event and we need to send the event to message broker and receive the acknowledgement. if we don't get it we need to send again.
 optionally: if the broker have the event id in their logs it do not accept the event, and if there is no log with that id, accept the message.
 in subscriber side, we get the event from the broker, if we don't have the id in our db we process it and write to db, and if we have it it means it was processed perviously.
+
+---  
+---  
+---
+
+# 5.1. Saga Pattern
+
+**in software architecture every thing is a trade-off**
+
+each micro have its own database and now we loose database transactions for the use cases that we want to change some DBs.
+
+## Saga Pattern
+saga pattern help us perform a distributed transaction that spans multiple microservices and databases.
+
+## Saga impl
+
+**1. Workflow Orchestration**  
+there is a workflow orchestration service. the sole purpose of this service is to orchestrate the transaction in the correct order and also apply the compensating operations in the opposite order if things go wrong.
+
+**2. Event-Driven Model (Choreography)**  
+each service handles its own businesses and if there is a need to speak to other services, just fire an event.  
+this means there is a chain of services and events with a specific order. if any problem happens in the chain, rollback started from there and each node fire an event to previous node for rollback the operation.
+  
+**note:** in eda, for rollback and canceling orders or requests, we need a notification box for each user to send the result to it.
+
+# 5.2. CQRS Pattern  
+
+cqrs -> command and query responsibility segregation
+
+we can segregate the actions on data into two type:
+
+1. command: change the data (insert, update, delete)  
+2. query: read the data and data will never change (get, read)
+
+
+**CQRS Benefits**  
+- Separation of concerns
+- Higher performance for read and write operation (we can choose right infra for each part that support better performance)
+- Higher scalability
+- solves the problem of joining data from multiple microservices  
+
+one of cqrs implementations is to use eda and make a eventually consistency between query db and command db. 
+
+another way is to use something special in infra like OLAP
+
+# 5.3. Event Sourcing Pattern
+
+## event sourcing benefits:
+- visualize  
+- auditing
+- corrections
+- high write performance (no db lock needed)  
+
+in traditional DBs we loose pervious state of data.  
+for saving previous state of data we use event sourcing.  
+**note** events (in event store) are always immutable (it never changes) and we just have insert into event store.  
+
+for reaching the last state of data we apply all events into the entity. (it is like a version control for data)
+
+## event sourcing impl
+1. db - one row per event (good for query, bad for high load)
+2. message broker - store in message broker (good for high load, we have no query)
+
+## how to reach last data state
+
+of course replacing all the transactions in someone bank account every time we want to show the client their balance is not very efficient.
+
+so to address that we can apply few strategies:
+- snapshots: taking snapshot at certain points of the events log. (each month or week or day)
+- cqrs: command service for events and event store, for each new event we need to fire a new event into queue for query service that applies the latest changes and save the last state of data for queries. (eda, eventually consistent)  
+**note:** in command service we don't need any special database. (it is not necessary)
+  
+**note:** the combination between cqrs and event sourcing is very popular in the industry.  
+reasons:  
+- we get history and auditing
+- we get fast and efficient writes
+- we get fast and efficient reads
+
+**note again:** this brilliant pattern is not for free. we can only implement it with eventual consistent solution and we loss the string consistency. which may or may be not good enough depending on your use case.
 
