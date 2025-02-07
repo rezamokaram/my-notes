@@ -19,7 +19,7 @@ if we do cache or store data that belongs to another microservice, then we loose
 - no more "join" operation
 - no more transactions
 
-# 3.2. DRY (Don`t repeat your self)    
+# 3.2. DRY (Don't repeat your self)    
 
 ## Principle
 if you repeat the same logic or data (constant values) you should consolidate it a shared:
@@ -153,3 +153,73 @@ also load balancing in eda is better
 - loose coupling
 
 # 4.2. use case and patterns of eda
+
+**use cases:**
+- fire and forget
+- reliable delivery
+- infinite stream of events
+- anomaly detection/pattern recognition
+- broadcasting
+
+**req/res model use cases**
+- immediate response with data is needed
+
+note: the important thing is that we should not to use eda every where, the best solution is to design the system first and just use eda where its really needed (even if we use eda every where its better to design first)
+
+## event delivery patterns
+
+- event streaming: in this pattern, the message broker is used as a temporary or permanent storage for events. the consumers have full access to logs of that events, even if they have already been consumed by the same consumer or other consumers.
+1. reliable delivery
+2. pattern / anomaly detection
+
+- pub/sub: in this patterns the consumers subscribe to a particular topic or channel to receive only new events after subscribing. in this case subscribers don't have access to old events, and as soon as all the current subscribers receive the event, the message broker will typically delete it from when a consumer, consumes the event.
+this pattern is ideal when the message broker is used only as a temporary storage or broadcasting mechanism. after the subscribers consume the events, they are typically transformed and stored permanently in a database or pass it to another service.
+
+1. messaging system is a temporary storage
+2. fire and forget
+3. broadcasting
+4. buffering
+5. infinite stream of events
+
+## use cases that eda is not a good solution
+1. need an immediate response containing data
+2. simple interactions
+
+# 4.3. message delivery semantic in eda
+
+## message delivery problem
+
+it is possible when we send a request to the server then we don't get any response from it:
+1. server crashes on that request and db don't update
+2. server update db successfully and after that crashes or cannot send response
+
+## event delivery problem in eda
+event may lost or receive more than 1 time in consumer side:
+1. in memory messaging system and it goes down
+2. on receiving server crashes before update db
+3. on consumer, server can not send nack after db update
+4. ...
+
+## delivery semantics
+
+**1. at-most-once delivery semantic:**  
+in producer, if we send the message to messaging system and don't get the acknowledgment we don't send it again  
+also in subscriber side, we send the acknowledgment before processes the message, if server crashes any where or any similar problem, we don't process it again and it should be ok with our scenario
+- data loss is ok
+- least overhead / lowest latency
+
+**2. at-least-once delivery semantic:**  
+in publisher side, we send the event into message broker and if we don't get acknowledgment from broker we send it again until get acknowledgment once
+in subscriber side we get the event from broker and process it and then we send a acknowledgment to to broker
+
+- data loss is un acceptable
+- data duplication is ok
+
+**3. exactly-once delivery semantic:**  
+- most difficult to achieve
+- highest overhead / latency
+we need at least once semantic + corelation id (ident potency for event or item) in publisher side
+it means each event have its own unique id that identify the event and we need to send the event to message broker and receive the acknowledgement. if we don't get it we need to send again.
+optionally: if the broker have the event id in their logs it do not accept the event, and if there is no log with that id, accept the message.
+in subscriber side, we get the event from the broker, if we don't have the id in our db we process it and write to db, and if we have it it means it was processed perviously.
+
