@@ -400,3 +400,154 @@ on other hand if no issue detected, we direct all the production traffic from th
 ---  
 ---  
 ---  
+
+# 7.1. introduction to the three pillars of observability in microservices
+
+**as professional software engineers, we all know that no matter how well we test our code, bugs, failures and performance issue will always happen**
+
+in distributed systems debugging is so much harder.
+
+## observability vs monitoring
+on the surface monitoring and observability are very similar to each other:  
+- both provide tools to:
+    - collect data
+    - give insights
+    - detect issue
+
+in fact monitoring is:
+process of:
+- collecting
+- analyzing
+- displaying
+all of above functionalities base on **predefined** set of metrics.
+
+monitoring allows us to find out if something goes wrong.
+
+does not tell us:
+- what is wrong
+- how to remediate the problem
+
+observability enables us:
+- debug
+- search for patterns
+- follow input/output
+- get insights into the behavior of the system
+
+Allows us to flow individual:
+- requests
+- transactions
+- events
+
+discover and isolate performance bottlenecks.  
+point us to the source of problem.  
+
+**monitoring is important, observability is primarily critical for microservice architecture**
+
+## three pillars of observability in microservices
+1. distributed logging  
+logs:  
+- append only files
+- events in:
+    - application process
+    - container
+    - database instance
+    - server
+- structured / semi-structured strings
+- metadata includes
+    - timestamp
+    - request
+    - method
+    - class
+    - application
+
+
+2. metrics
+- regular sampled data points
+- numerical values
+    - values
+    - distributions
+    - gauges
+example:  
+- rps (request per second)
+- error/hour
+- latency distribution
+- current cpu utilization
+- memory usage
+- cache hit rate
+
+3. distributed tracing
+- path of a given request through several microservices
+- time each microservice took to process it
+- may include:
+    - request header
+    - response status code
+
+# 7.2. distributed logging
+
+## distributed logging
+- simple way to provide insight into the application`s state
+- a log line can be an:
+    - event
+    - action
+    - exception
+    - error
+
+## distributed logging - best practices
+1. centralized system
+2. predefined structure / schema
+3. log level / log severity (-> trace, debug, info, warn, error, fatal)
+4. correlation id
+5. adding contextual information
+    - service name
+    - hostname / ip address
+    - user id
+    - timestamp
+
+**note:** log only necessary data  
+**do not log:**
+    - sensitive data
+    - PII (personal identifiable information)
+
+# 7.3. metrics
+
+## what is metrics?
+measurable or countable signals of software that help us monitor the system`s health and performance.
+
+## the problem of collecting too many metrics
+- expensive
+- information over load
+
+## the 5 golden signals / metrics
+sources:  
+- google sre book - "the four golden signals"
+- the use method by Brendan greg
+
+in combine:
+ - **traffic:** amount of demand being on our system per unit of time 
+    example: rps
+ - errors: error rate and  error type (ts important because users directly impacted) example: number of app exceptions, http status code
+ - **latency:** time it takes for a service to process a request.  
+ latency distribution vs average
+ - **saturation:** how overloaded/full a service/resource is.  
+    very important for messaging systems and databases  
+ - **utilization:** how busy a resource is.(0 - 100 %)
+ good for cpu, memory 
+
+
+*Difference Between Saturation and Utilization in Monitoring Metrics*  
+| **Metric**       | **Definition** | **Example** | **Indicates** |
+|------------------|--------------|-------------|--------------|
+| **Utilization**  | Measures the percentage of a resource being actively used over time. | **CPU utilization:** 80% means CPU is busy 80% of the time. | How much of the resource is in use. |
+| **Saturation**   | Measures the extent to which a resource is overloaded, often by looking at queued tasks or delays. | **CPU saturation:** 5 processes waiting in the queue means the CPU is overworked. | How much demand exceeds capacity. |
+
+  
+  
+Key Differences:  
+1. Utilization tells you how busy a resource is.
+2. Saturation tells you if the resource is struggling due to excessive demand.  
+🔹 Example: A CPU running at 90% utilization might still perform well. But if there are many tasks waiting (high saturation), it means the system is overwhelmed and may slow down.  
+
+---  
+---  
+---  
+
