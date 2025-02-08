@@ -586,3 +586,25 @@ for example if one of our spans relate to a specific service and we need to know
 
 3. big traces / too much data
     - hard to even look at them
+
+---  
+---  
+---  
+
+# 8.1. how to deploy and run microservices
+
+| CoDeployment Type | Cost | Security | Performance |
+|-------------------|------|----------|-------------|
+| Multi-Tenant cloud vm  | $   | mid   | good   |
+| Single-Tenant cloud vm | $$  | good  | good   |
+| Dedicated Host         | $$$ | good  | Best   |
+
+
+*Multi-Tenant cloud vm:* pay-as-you-go, it is possible to run two vm from two diff org on same host.  
+
+*Single-Tenant cloud vm:* cloud give us a host completely.  
+
+*Dedicated Host:* our machines.  
+
+# 8.3. serverless Deployment for microservices using function as service
+
