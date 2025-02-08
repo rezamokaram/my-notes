@@ -551,3 +551,38 @@ Key Differences:
 ---  
 ---  
 
+# 7.4. distributed tracing
+## motivation
+we need to trace all the path a incoming request from receiving into sending response or processing that request.
+in fact, any request or external events, may create a lot of works and communications in our system. so we need a strategy to observe all this path and states.
+
+## Terminology + How distributed tracing works
+
+we make a trace id and put it in a context object that we called it trace context.  
+every log ot http request or grpc calls or events for messaging systems should contain this context(this context contains every thing that we need for trace and not just id).  
+still it is not enough. we need to use and library or sdk for collecting data from trace context object and build or apply some new data to it.  
+then that service propagate the object for using in other services.  
+at the end of transaction, all the services data and logs can aggregated by the trace id for visualize all the part of transaction. for example how much time each part of transaction took.  
+
+the trace is broken logical units of work which are called spans. those spans can be coarse grained like the processing of a request by a service or a query by a database or they can create manually created by the developers using the instrumentation library. even if we need more specification we can use parent and child pattern for this spans to have some sub spans for tracing.  
+for example if one of our spans relate to a specific service and we need to know how much time the db query takes and how much time the other processes takes, we need sub spans for tracing.  
+
+## Distributed tracing challenges
+
+1. manual instrumentation of code 
+    in most cases not a big deal  
+    require us to:  
+        - depend on and load a library  
+        - learn and manually add instrumentation code  
+    
+    otherwise:  
+        - spans may be too broad  
+        - missing spans  
+
+2. cost
+    - we need to run an agent for each microservice host which consumes its own memory and cpu. also sending data over network which requires additional bandwidth.  
+    then we need to run a big data pipe line with its own infrastructure to process those tracing logs that come from different services. data pipe line and new infra stuffs needs maintenance.(hoof)  
+    but by far, the biggest challenge is to store this logs in DB at least for a few weeks.  
+
+3. big traces / too much data
+    - hard to even look at them
