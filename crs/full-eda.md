@@ -608,3 +608,63 @@ for example if one of our spans relate to a specific service and we need to know
 
 # 8.3. serverless Deployment for microservices using function as service
 
+## what is FaaS
+
+FaaS is a cloud computing service model where developers can run and manage application functions without the need to provision or maintain any underlying infrastructure, such as servers or virtual machines. In a FaaS environment, the cloud provider handles all server-side logic and infrastructure management, allowing developers to focus solely on writing and deploying their code.
+
+## FaaS Benefits
+- reduced infrastructure costs (if we use it correctly)  
+- reduce operational overhead for scalability  
+- reduced development cost for building, packaging and deploying microservices  
+
+## FaaS Drawbacks
+
+- in the traffic pattern changes, infrastructure costs may increase  
+- unpredictable performance
+- multi-tenant deployment (the less secure type of deployment)  
+
+| CoDeployment Type | Cost | Security | Performance |
+|-------------------|------|----------|-------------|
+| Multi-Tenant cloud vm  | $   | mid   | good   |
+| Single-Tenant cloud vm | $$  | good  | good   |
+| Dedicated Host         | $$$ | good  | Best   |
+| Function as a Service  | C / $$$$ | mid or lower  | mid or lower |
+
+# 8.5. Containers for Microservices in Dev, testing and prod
+
+## problem of dev / prod parity
+- may result issues in production
+## container vs VM
+
+## benefits of containers in prod
+
+- portability between environments
+- faster deployment / startup  
+- lower infrastructure costs
+
+## challenges of containers 
+
+- maintenance is very hard for 2 layer of abstraction
+  infra and containers -> the solution is that we always need orchestrator
+
+# 8.6. container orchestration and kubernetes 
+
+## What is the Containers Orchestrator ?
+
+- Manages the lifecycle of containers
+- "operating system" for microservices deployed as containers
+
+## Orchestration tool responsibilities
+- deployment automation  
+- resource allocation  
+- health monitoring  
+- self-healing  
+- bin-packing: scheduling containers in an efficient way to provide optimal utilization of existing hardware
+- load balancing
+- scaling services (out || in)
+- container discovery
+- network connectivity
+
+## Kubernetes Architecture
+
+[Kubernetes Architecture Documentation](https://kubernetes.io/docs/concepts/architecture/)
