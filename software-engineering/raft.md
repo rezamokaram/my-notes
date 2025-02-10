@@ -2,6 +2,11 @@
 
 In software engineering, Raft is a consensus algorithm designed to manage replicated logs in distributed systems. It ensures that multiple servers agree on the same sequence of operations, even in the presence of failures. Raft is widely used in distributed systems to achieve fault tolerance and consistency.
 
+## Links
+
+1. [The Raft Consensus Algorithm](https://raft.github.io/)
+2. [A visualize doc](http://thesecretlivesofdata.com/raft/)
+
 ## Key Concepts of Raft:
 ### 1. Leader Election:
 
@@ -30,6 +35,7 @@ In software engineering, Raft is a consensus algorithm designed to manage replic
     It handles leader crashes, network partitions, and other failures gracefully.
 
 ## How Raft Works:
+
 ### 1. Leader Election:
 
     Servers start in the follower state.
@@ -65,11 +71,15 @@ In software engineering, Raft is a consensus algorithm designed to manage replic
 ## Use Cases:
 Raft is commonly used in distributed databases, key-value stores, and other systems requiring fault tolerance and consistency, such as:
 
-Etcd: A distributed key-value store used in Kubernetes.
+[ETCD](https://github.com/etcd-io/etcd): A distributed key-value store used in Kubernetes.
 
-Consul: A service mesh and distributed system tool.
+[Consul](https://github.com/hashicorp/consul): A service mesh and distributed system tool.
 
-CockroachDB: A distributed SQL database.
+[CockroachDB](https://github.com/cockroachdb/cockroach): A distributed SQL database.
+
+[Vault](https://github.com/hashicorp/vault):  
+
+[NATS](https://github.com/nats-io/nats-server): graft
 
 ## Summary
 Raft is a robust and practical consensus algorithm that simplifies the implementation of fault-tolerant distributed systems.
