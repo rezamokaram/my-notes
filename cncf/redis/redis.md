@@ -120,4 +120,34 @@ In Redis, a hash is a data structure that maps fields to values, similar to a di
 - HKEYS key  
 (Returns all field names in the hash stored at key.)
 - HVALS key  
-(Returns all values in the hash stored at key.)
+(Returns all values in the hash stored at key.)  
+
+## Hash use cases
+### use  
+1. the record has many attributes
+2. a collection of these records have to be stored many different ways  
+3. often need to access a single record at a time
+
+### don't use  
+1. the record is only for counting or enforcing uniqueness
+2. record stores only one or two attributes  
+3. used only for creating relations between different records  
+4. the record is only used for time series data  
+
+### Summary
+
+| Use Case                           | Redis Hashes? | Alternative            |
+|-------------------------------------|--------------|------------------------|
+| User profiles, session data        | ✅ Yes       | -                      |
+| Frequent updates to fields         | ✅ Yes       | -                      |
+| Partial lookups (e.g., `age > 30`) | ❌ No        | `ZSET`, `RediSearch`   |
+| Joins / Complex queries            | ❌ No        | SQL or NoSQL (MongoDB or ScyllaDB) |
+| Large fields (10K+ fields)         | ❌ No        | JSON (`RedisJSON`)     |
+| Expiring individual fields         | ❌ No        | Store as `SET` with TTL |
+
+## Batching & Pipelines  
+
+// TODO
+
+
+first of 9
