@@ -1,13 +1,18 @@
 # Redis.io
 
-## why to use redis ?  
+1. [Introduction](#why-to-use-redis?)
+2. [Strings and Basic commands](#strings-and-basic-commands)
+3. [Hash](#hash)
+4. [Pipelines](#pipelines)
+
+# why-to-use-redis?
 
 - redis is fast  
     1. all data stored in memory
     2. data is organized in simple data structures  
     3. redis has a simple feature set
 
-## Strings and Basic commands
+# Strings and Basic commands
 [doc link to all commands](https://redis.io/docs/latest/commands/?alpha=e)  
 
 some of them have same functionality until we set something special.  
@@ -94,7 +99,7 @@ get set del mset and mget also works for numbers.
 
 **impl note** we need to write the cache layer inside a package with a single key generator method for each entity to avoid missing keys in read or write.  
 
-## Hash  
+# Hash  
 
 In Redis, a hash is a data structure that maps fields to values, similar to a dictionary or a key-value store within a key. It's useful for storing objects with multiple attributes.  
 
@@ -134,7 +139,7 @@ In Redis, a hash is a data structure that maps fields to values, similar to a di
 3. used only for creating relations between different records  
 4. the record is only used for time series data  
 
-### Summary
+## Summary
 
 | Use Case                           | Redis Hashes? | Alternative            |
 |-------------------------------------|--------------|------------------------|
@@ -145,9 +150,147 @@ In Redis, a hash is a data structure that maps fields to values, similar to a di
 | Large fields (10K+ fields)         | ❌ No        | JSON (`RedisJSON`)     |
 | Expiring individual fields         | ❌ No        | Store as `SET` with TTL |
 
-## Batching & Pipelines  
+# Pipelines  
+Redis Pipeline is a mechanism that allows sending multiple commands to the Redis server in a single network request, significantly improving performance by reducing the number of round-trip delays between the client and server.
 
-// TODO
+---
 
+## **1. What is Redis Pipeline?**
+Normally, when you send a command to Redis, the sequence is:
+1. The client sends a request to Redis.
+2. Redis processes the request.
+3. Redis sends back the response.
+4. The client receives the response.
 
-first of 9
+This process involves multiple round trips, which can be slow due to network latency.
+
+With **pipelining**, you send multiple commands at once, reducing the number of network round trips, thereby improving efficiency.
+
+### **Key Benefits of Using Pipelining:**
+✅ Reduces latency by minimizing round trips  
+✅ Improves throughput, especially for batch operations  
+✅ Enhances performance when working with multiple keys  
+
+---
+
+## **2. How Redis Pipeline Works**
+Instead of sending and waiting for each command sequentially, Redis pipelines batch commands together and execute them in one go.
+
+### **Without Pipelining (Normal Execution)**
+```bash
+SET key1 value1 → Response: OK  
+SET key2 value2 → Response: OK  
+GET key1 → Response: value1  
+GET key2 → Response: value2
+```
+
+Each command waits for the previous command’s response before being executed.
+
+### **With Pipelining**
+```bash
+Pipeline: SET key1 value1 SET key2 value2 GET key1 GET key2
+
+Response: OK OK value1 value2  
+```
+All commands are sent together, and responses are received in sequence.
+
+---
+
+## **3. Redis Pipeline Commands**
+Most Redis commands can be used within a pipeline. Below are examples in **Golang** using the `go-redis` package.
+
+### **Using Golang (`go-redis` package)**
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/redis/go-redis/v9"
+)
+
+func main() {
+	ctx := context.Background()
+	client := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+
+	pipe := client.Pipeline()
+
+	pipe.Set(ctx, "key1", "value1", 0)
+	pipe.Set(ctx, "key2", "value2", 0)
+	getKey1 := pipe.Get(ctx, "key1")
+	getKey2 := pipe.Get(ctx, "key2")
+
+	_, err := pipe.Exec(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	value1, _ := getKey1.Result()
+	value2, _ := getKey2.Result()
+
+	fmt.Println("key1:", value1) // Output: key1: value1
+	fmt.Println("key2:", value2) // Output: key2: value2
+}
+```
+
+## **4. Redis Pipeline vs. Transaction**
+
+| Feature         | Pipeline | Transaction (MULTI/EXEC) |
+|---------------|----------|-------------------------|
+| **Execution Order** | Not atomic (commands are sent but not executed as one unit) | Atomic (all commands execute as a single unit) |
+| **Speed** | Faster (batching reduces network latency) | Slower due to atomicity |
+| **Error Handling** | Executes all commands, even if one fails | If a command fails, the entire transaction fails |
+| **Use Case** | Bulk operations, performance optimization | Operations requiring atomicity, such as financial transactions |
+
+## Example of Redis Transaction in Golang
+
+```go
+pipe := client.TxPipeline()
+
+pipe.Set(ctx, "key1", "value1", 0)
+pipe.Set(ctx, "key2", "value2", 0)
+getKey1 := pipe.Get(ctx, "key1")
+getKey2 := pipe.Get(ctx, "key2")
+
+_, err := pipe.Exec(ctx)
+if err != nil {
+	log.Fatal(err)
+}
+
+value1, _ := getKey1.Result()
+value2, _ := getKey2.Result()
+
+fmt.Println("Transaction - key1:", value1)
+fmt.Println("Transaction - key2:", value2)
+
+```
+
+## 5. When to Use Redis Pipelining?
+✅ When you need to execute multiple Redis commands in bulk
+✅ When reducing network latency is a priority
+✅ When atomicity is not required
+
+🚫 Avoid pipelining when:
+
+- Commands depend on previous responses.
+- You need transaction-like atomicity.
+
+## 6. Common Mistakes & Best Practices
+❌ Mistake: Sending Too Many Commands
+Sending too many commands at once can overwhelm Redis. Break down large pipelines into smaller batches.
+
+✅ Best Practice: Limit Pipeline Size
+A good rule of thumb is to send batches of 100 to 1000 commands at a time.
+
+❌ Mistake: Assuming Order is Maintained
+Though Redis processes commands sequentially in a pipeline, external factors (such as network issues) can sometimes cause unexpected behavior.
+
+✅ Best Practice: Monitor and Handle Errors
+Use error handling and logging to catch failed pipeline executions.
+
+## Conclusion
+Redis Pipeline is a powerful feature for optimizing performance by reducing round-trip delays. While it is faster than sending individual commands, it lacks atomicity. For bulk operations, pipelining is ideal, but for transactional integrity, use MULTI/EXEC.
