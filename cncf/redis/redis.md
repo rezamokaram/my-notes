@@ -1,11 +1,15 @@
 # Redis.io
 
-1. [Introduction](#why-to-use-redis?)
+1. [Introduction](#introduction)
 2. [Strings and Basic commands](#strings-and-basic-commands)
 3. [Hash](#hash)
 4. [Pipelines](#pipelines)
+	- [Concept](#concept)
+5. [Set](#set)
+	- [Concept](#concept)
+	- [Commands](#commands)
 
-# why-to-use-redis?
+# Introduction
 
 - redis is fast  
     1. all data stored in memory
@@ -103,7 +107,7 @@ get set del mset and mget also works for numbers.
 
 In Redis, a hash is a data structure that maps fields to values, similar to a dictionary or a key-value store within a key. It's useful for storing objects with multiple attributes.  
 
-### Some of Hash Commands
+## Commands
 - HSET key field value  
 (Sets a field in the hash.)
 - HGET key field  
@@ -127,7 +131,7 @@ In Redis, a hash is a data structure that maps fields to values, similar to a di
 - HVALS key  
 (Returns all values in the hash stored at key.)  
 
-## Hash use cases
+## Use Cases
 ### use  
 1. the record has many attributes
 2. a collection of these records have to be stored many different ways  
@@ -155,7 +159,7 @@ Redis Pipeline is a mechanism that allows sending multiple commands to the Redis
 
 ---
 
-## **1. What is Redis Pipeline?**
+## Concept
 Normally, when you send a command to Redis, the sequence is:
 1. The client sends a request to Redis.
 2. Redis processes the request.
@@ -293,4 +297,78 @@ Though Redis processes commands sequentially in a pipeline, external factors (su
 Use error handling and logging to catch failed pipeline executions.
 
 ## Conclusion
-Redis Pipeline is a powerful feature for optimizing performance by reducing round-trip delays. While it is faster than sending individual commands, it lacks atomicity. For bulk operations, pipelining is ideal, but for transactional integrity, use MULTI/EXEC.
+Redis Pipeline is a powerful feature for optimizing performance by reducing round-trip delays. While it is faster than sending individual commands, it lacks atomicity. For bulk operations, pipelining is ideal, but for transactional integrity, use MULTI/EXEC.  
+
+# Set
+
+a Set is an unordered collection of unique strings. Sets are highly efficient for operations like checking membership, intersections, unions, and differences between multiple sets.  
+
+## Concept
+
+- **Unique Elements**: A Redis set does not allow duplicate elements.
+- **Unordered**: Elements inside a set do not maintain a specific order.
+- **Fast Operations**: Redis provides O(1) time complexity for adding, removing, and checking membership in sets.
+- **Supports Set Operations**: Redis supports union, intersection, and difference operations on sets.
+- **Efficient for Membership Checks**: SISMEMBER allows quick lookups.
+
+## Commands
+
+- *SADD key member [member ...]*  
+Adds multiple values to the set.  
+Returns the number of elements successfully added.  
+
+- *SCARD key*  
+Gets the number of elements in the set.  
+Returns the cardinality (number of elements) of the set.  
+
+- *SDIFF key [key ...]*  
+Finds the difference between multiple sets.  
+Returns a set of elements present in the first set but not in the others.  
+
+- *SDIFFSTORE destination key [key ...]*  
+Stores the difference between multiple sets in a destination set.  
+Returns the number of elements in the resulting set.  
+
+- *SINTER key [key ...]*  
+Finds the intersection of multiple sets.  
+Returns a set of elements present in all specified sets.  
+
+- *SINTERSTORE destination key [key ...]*  
+Stores the intersection of multiple sets in a destination set.  
+Returns the number of elements in the resulting set.  
+
+- *SISMEMBER key member*  
+Checks if a member exists in the set.  
+Returns 1 if the member exists, 0 otherwise.  
+
+- *SMEMBERS key*  
+Retrieves all members of the set.  
+Returns a list of all elements in the set.  
+
+- *SMISMEMBER key member [member ...]*  
+Checks if multiple members exist in the set.  
+Returns a list of 1s and 0s indicating presence of each member.  
+
+- *SMOVE source destination member*  
+Moves a member from one set to another.  
+Returns 1 if the member was moved, 0 otherwise.  
+
+- *SPOP key [count]*  
+Removes and returns one or more random members from the set.  
+Returns the removed member(s).  
+
+- *SRANDMEMBER key [count]*  
+Gets one or more random members from the set without removing them.  
+Returns the randomly selected member(s).  
+
+- *SREM key member [member ...]*  
+Removes one or more members from the set.  
+Returns the number of members removed.  
+
+- *SUNION key [key ...]*  
+Finds the union of multiple sets.  
+Returns a set of all unique elements from the specified sets.  
+
+- *SUNIONSTORE destination key [key ...]*  
+Stores the union of multiple sets in a destination set.  
+Returns the number of elements in the resulting set.  
