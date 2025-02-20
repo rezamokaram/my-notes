@@ -8,6 +8,8 @@
 5. [Set](#set)
 	- [Concept](#concept)
 	- [Commands](#commands)
+6. [Sorted Set](#sorted-set)
+	- [Concept](#concept)
 
 # Introduction
 
@@ -372,3 +374,59 @@ Returns a set of all unique elements from the specified sets.
 - *SUNIONSTORE destination key [key ...]*  
 Stores the union of multiple sets in a destination set.  
 Returns the number of elements in the resulting set.  
+
+# Sorted Set  
+
+## Concept  
+
+A Sorted Set in Redis is a collection of unique elements, each associated with a floating-point score. Elements are ordered by their scores in ascending order. It is useful for ranking systems, leaderboards, priority queues, etc.
+
+The key identifies the sorted set.  
+Each member in the set is unique, but scores can be duplicated.  
+The set is always maintained in sorted order based on scores.  
+
+## Commands  
+
+1. ZADD key score member [score member ...]
+	- Adds elements to a sorted set with an associated score. If the element exists, the score is updated.
+	- The number of new elements added (not counting updates).
+
+2. ZINCRBY key increment member
+	- Increases the score of a member by a given amount.  
+	- The new score of the member.  
+
+3. ZRANGE key start stop [BYSCORE | BYLEX] [REV] [LIMIT offset count]
+  [WITHSCORES]  
+  **[REV]** -> reverse order in return  
+  **[WITHSCORES]** -> return key and score (not only key)  
+  **[LIMIT offset count]** -> The optional LIMIT argument can be used to obtain a sub-range from the matching elements (similar to SELECT LIMIT offset, count in SQL). A negative 'count' returns all elements from the 'offset'. Keep in mind that if 'offset' is large, the sorted set needs to be traversed for 'offset' elements before getting to the elements to return, which can add up to O(N) time complexity.  
+  [**BYSCORE**  
+   | 
+   **BYLEX** ] -> Lexicographical order in return  
+
+	- Returns members in increasing score order within the given range (zero-based index).  
+	- A list of members (and optionally their scores if WITHSCORES is provided).  
+	- Starting with Redis 6.2.0, this command can replace the following commands: ZREVRANGE, ZRANGEBYSCORE, ZREVRANGEBYSCORE, ZRANGEBYLEX and ZREVRANGEBYLEX. (these commands are now deprecated.)  
+
+4. ZREVRANGE key start stop [WITHSCORES] (deprecated)
+   - Returns members in decreasing score order within the given range.
+   - A list of members (and optionally their scores if WITHSCORES is provided).
+
+5. ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count] (deprecated)
+	- Retrieves members whose scores are within the given range (min to max).
+	- A list of members (and optionally their scores).
+
+6. ZREVRANGEBYSCORE key max min [WITHSCORES] [LIMIT offset count] (deprecated)
+   - Retrieves members within a reversed score range (max to min).
+   - A list of members (and optionally their scores).
+
+7. ZRANK key member [WITHSCORE]
+	- Returns the rank (position) of a member in ascending order.
+	- The rank (0-based index) or nil if the member is not found.
+
+*summary:* 
+- ZADD is used to insert/update elements.
+- ZRANGE and ZREVRANGE retrieve elements.
+- ZSCORE, ZRANK return ranking-related data.
+- ZUNIONSTORE, ZINTERSTORE perform set operations.
+- ZPOPMIN, ZPOPMAX remove elements efficiently.
