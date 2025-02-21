@@ -147,14 +147,14 @@ In Redis, a hash is a data structure that maps fields to values, similar to a di
 
 ## Summary
 
-| Use Case                           | Redis Hashes? | Alternative            |
-|-------------------------------------|--------------|------------------------|
-| User profiles, session data        | ✅ Yes       | -                      |
-| Frequent updates to fields         | ✅ Yes       | -                      |
-| Partial lookups (e.g., `age > 30`) | ❌ No        | `ZSET`, `RediSearch`   |
-| Joins / Complex queries            | ❌ No        | SQL or NoSQL (MongoDB or ScyllaDB) |
-| Large fields (10K+ fields)         | ❌ No        | JSON (`RedisJSON`)     |
-| Expiring individual fields         | ❌ No        | Store as `SET` with TTL |
+| Use Case                           | Redis Hashes? | Alternative                        |
+| ---------------------------------- | ------------- | ---------------------------------- |
+| User profiles, session data        | ✅ Yes         | -                                  |
+| Frequent updates to fields         | ✅ Yes         | -                                  |
+| Partial lookups (e.g., `age > 30`) | ❌ No          | `ZSET`, `RediSearch`               |
+| Joins / Complex queries            | ❌ No          | SQL or NoSQL (MongoDB or ScyllaDB) |
+| Large fields (10K+ fields)         | ❌ No          | JSON (`RedisJSON`)                 |
+| Expiring individual fields         | ❌ No          | Store as `SET` with TTL            |
 
 # Pipelines  
 Redis Pipeline is a mechanism that allows sending multiple commands to the Redis server in a single network request, significantly improving performance by reducing the number of round-trip delays between the client and server.
@@ -245,12 +245,12 @@ func main() {
 
 ## **4. Redis Pipeline vs. Transaction**
 
-| Feature         | Pipeline | Transaction (MULTI/EXEC) |
-|---------------|----------|-------------------------|
-| **Execution Order** | Not atomic (commands are sent but not executed as one unit) | Atomic (all commands execute as a single unit) |
-| **Speed** | Faster (batching reduces network latency) | Slower due to atomicity |
-| **Error Handling** | Executes all commands, even if one fails | If a command fails, the entire transaction fails |
-| **Use Case** | Bulk operations, performance optimization | Operations requiring atomicity, such as financial transactions |
+| Feature             | Pipeline                                                    | Transaction (MULTI/EXEC)                                       |
+| ------------------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
+| **Execution Order** | Not atomic (commands are sent but not executed as one unit) | Atomic (all commands execute as a single unit)                 |
+| **Speed**           | Faster (batching reduces network latency)                   | Slower due to atomicity                                        |
+| **Error Handling**  | Executes all commands, even if one fails                    | If a command fails, the entire transaction fails               |
+| **Use Case**        | Bulk operations, performance optimization                   | Operations requiring atomicity, such as financial transactions |
 
 ## Example of Redis Transaction in Golang
 
@@ -387,13 +387,17 @@ The set is always maintained in sorted order based on scores.
 
 ## Commands  
 
-1. ZADD key score member [score member ...]
-	- Adds elements to a sorted set with an associated score. If the element exists, the score is updated.
-	- The number of new elements added (not counting updates).
+### Adding & Updating Elements
 
-2. ZINCRBY key increment member
+1. ZADD key score member [score member ...]  
+	- Adds elements to a sorted set with an associated score. If the element exists, the score is updated.  
+	- The number of new elements added (not counting updates).  
+
+2. ZINCRBY key increment member  
 	- Increases the score of a member by a given amount.  
 	- The new score of the member.  
+
+### Retrieving Elements
 
 3. ZRANGE key start stop [BYSCORE | BYLEX] [REV] [LIMIT offset count]
   [WITHSCORES]  
@@ -403,26 +407,111 @@ The set is always maintained in sorted order based on scores.
   [**BYSCORE**  
    | 
    **BYLEX** ] -> Lexicographical order in return  
-
+  
 	- Returns members in increasing score order within the given range (zero-based index).  
 	- A list of members (and optionally their scores if WITHSCORES is provided).  
 	- Starting with Redis 6.2.0, this command can replace the following commands: ZREVRANGE, ZRANGEBYSCORE, ZREVRANGEBYSCORE, ZRANGEBYLEX and ZREVRANGEBYLEX. (these commands are now deprecated.)  
+  
+4. ZREVRANGE key start stop [WITHSCORES] (deprecated)  
+   - Returns members in decreasing score order within the given range.  
+   - A list of members (and optionally their scores if WITHSCORES is provided).  
+  
+5. ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count] (deprecated)  
+	- Retrieves members whose scores are within the given range (min to max).  
+	- A list of members (and optionally their scores).  
+  
+6. ZREVRANGEBYSCORE key max min [WITHSCORES] [LIMIT offset count] (deprecated)  
+   - Retrieves members within a reversed score range (max to min).  
+   - A list of members (and optionally their scores).  
+  
+7. ZRANK key member [WITHSCORE]  
+	- Returns the rank (position) of a member in ascending order.  
+	- The rank (0-based index) or nil if the member is not found.  
 
-4. ZREVRANGE key start stop [WITHSCORES] (deprecated)
-   - Returns members in decreasing score order within the given range.
-   - A list of members (and optionally their scores if WITHSCORES is provided).
+8. ZREVRANK key member [WITHSCORE]  
+	- Returns the rank of member in the sorted set stored at key, with the scores ordered from high to low. The rank (or index) is 0-based, which means that the member with the highest score has rank 0. Use ZRANK to get the rank of an element with the scores ordered from low to high.  
+	- The rank (0-based index) or nil if the member is not found.  
 
-5. ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count] (deprecated)
-	- Retrieves members whose scores are within the given range (min to max).
-	- A list of members (and optionally their scores).
+9. ZSCORE key member  
+	- Returns the score of member in the sorted set at key.  
+	- If member does not exist in the sorted set, or key does not exist, nil is returned.  
 
-6. ZREVRANGEBYSCORE key max min [WITHSCORES] [LIMIT offset count] (deprecated)
-   - Retrieves members within a reversed score range (max to min).
-   - A list of members (and optionally their scores).
+### Counting & Range Queries
 
-7. ZRANK key member [WITHSCORE]
-	- Returns the rank (position) of a member in ascending order.
-	- The rank (0-based index) or nil if the member is not found.
+10. ZCARD key  
+	- Returns the sorted set cardinality (number of elements) of the sorted set stored at key.  
+
+11. ZCOUNT key min max  
+	- Returns the number of elements in the sorted set at key with a score between min and max.  
+	- O(log(N)) with N being the number of elements in the sorted set.  
+
+12. ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count] (deprecated)  
+	- O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).  
+	- Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max). The elements are considered to be ordered from low to high scores.
+
+### Removing Elements
+
+13. ZREM key member [member ...]  
+	- O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.  
+	- returns the number of members removed.  
+
+14. ZREMRANGEBYRANK key start stop  
+	- O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+	- Removes all elements in the sorted set stored at key with rank between start and stop. Both start and stop are 0 -based indexes with 0 being the element with the lowest score. These indexes can be negative numbers, where they indicate offsets starting at the element with the highest score.  
+
+15. ZREMRANGEBYSCORE key min max  
+	- O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.  
+	- Removes all elements in the sorted set stored at key with a score between min and max (inclusive).  
+
+### Lexicographical Operations (String Sorting)
+
+16. ZRANGEBYLEX key min max [LIMIT offset count] (deprecated)  
+	- O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).  
+	- When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at key with a value between min and max.  
+
+17. ZREVRANGEBYLEX key max min [LIMIT offset count] (deprecated)  
+	- O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).  
+	- When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at key with a value between max and min.  
+
+18. ZLEXCOUNT key min max  
+	- O(log(N)) with N being the number of elements in the sorted set.  
+	- Counts the number of elements between min and max (by lexicographical order).  
+
+19. ZREMRANGEBYLEX key min max
+	- O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+	- When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command removes all elements in the sorted set stored at key between the lexicographical range specified by min and max.
+
+### Intersection & Union Operations
+
+20. ZINTERSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE <SUM | MIN | MAX>]
+	- O(N*K)+O(M*log(M)) worst case with N being the smallest input sorted set, K being the number of input sorted sets and M being the number of elements in the resulting sorted set.  
+	- Finds the intersection of multiple sorted sets.  
+
+21. ZUNION numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE <SUM | MIN | MAX>] [WITHSCORES]
+	- Computes the union of multiple sorted sets (newer version of ZUNIONSTORE).  
+	- For a description of the WEIGHTS and AGGREGATE options, see ZUNIONSTORE.  
+
+22. ZUNIONSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE <SUM | MIN | MAX>]  
+	- Merges multiple sorted sets into one (Union).  
+	- - For a description of the WEIGHTS and AGGREGATE options, see ZUNIONSTORE doc on web.  
+
+23. ZINTER numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE SUM|MIN|MAX] [WITHSCORES]  
+	- Computes the intersection of multiple sorted sets (newer version of ZINTERSTORE).  
+
+### Miscellaneous  
+24. ZPOPMIN key [count]  
+	- Removes and returns up to count members with the lowest scores in the sorted set stored at key.  
+	- O(log(N)*M) with N being the number of elements in the sorted set, and M being the number of elements popped.  
+
+25. BZPOPMIN key [key ...] timeout  
+	- BZPOPMIN is the blocking variant of the sorted set ZPOPMIN primitive.  
+
+26. ZPOPMAX key [count]  
+	- Removes and returns up to count members with the highest scores in the sorted set stored at key.
+	- O(log(N)*M) with N being the number of elements in the sorted set, and M being the number of elements popped.
+
+27. BZPOPMAX key [key ...] timeout  
+	- BZPOPMAX is the blocking variant of the sorted set ZPOPMAX primitive.  
 
 *summary:* 
 - ZADD is used to insert/update elements.
