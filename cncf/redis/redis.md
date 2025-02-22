@@ -2,14 +2,21 @@
 
 1. [Introduction](#introduction)
 2. [Strings and Basic commands](#strings-and-basic-commands)
-3. [Hash](#hash)
-4. [Pipelines](#pipelines)
-	- [Concept](#concept)
-5. [Set](#set)
-	- [Concept](#concept)
-	- [Commands](#commands)
-6. [Sorted Set](#sorted-set)
-	- [Concept](#concept)
+3. [List](#list)
+	- [Concept](#list-concept)
+	- [Commands](#list-commands)
+	- [Use Cases](#use-cases-of-redis-lists)
+4. [Hash](#hash)
+    - [Concept](#hash-concept)
+	- [Commands](#hash-commands)
+5. [Pipelines](#pipelines)
+	- [Concept](#pipelines-concept)
+6. [Set](#set)
+	- [Concept](#set-concept)
+	- [Commands](#set-commands)
+7. [Sorted Set](#sorted-set)
+	- [Concept](#sorted-set-concept)
+	- [Commands](#sorted-set-commands)
 
 # Introduction
 
@@ -105,11 +112,97 @@ get set del mset and mget also works for numbers.
 
 **impl note** we need to write the cache layer inside a package with a single key generator method for each entity to avoid missing keys in read or write.  
 
+
+# List  
+
+## List Concept  
+
+In Redis, a list is a collection of ordered elements where you can add or remove elements from both ends efficiently.  
+Redis lists are implemented using linked lists, making them very fast for insertions and deletions.
+
+## List Commands  
+
+### Adding Elements to a List
+
+1. LPUSH key value [value ...]	
+	- Inserts one or more values at the head (left) of the list.  
+
+2. RPUSH key value [value ...]	
+	- Inserts one or more values at the tail (right) of the list.  
+
+3. LPUSHX key value	 
+	- Inserts a value at the head only if the list exists.  
+
+4. RPUSHX key value	 
+	- Inserts a value at the tail only if the list exists.  
+
+### Retrieving Elements
+
+5. LRANGE key start stop  
+   	- Retrieves elements within a given range. Indexes are zero-based.  
+  
+6. LINDEX key index	 
+	- Gets an element by index.  
+
+7. LLEN key	 
+	- Returns the length of the list.
+
+### Removing Elements  
+
+8. LPOP key	 
+	- Removes and returns the first (leftmost) element.  
+
+9. RPOP key	 
+	- Removes and returns the last (rightmost) element.  
+
+10. LREM key count value  
+	- Trims the list, keeping only elements within the given range.  
+
+### Modifying Elements  
+
+11. LSET key index value  
+	- Sets an element at the specified index.
+
+### Blocking Operations (Useful for Queues)  
+
+12. BLPOP key [key ...] timeout	 
+	- Removes and returns the first element, blocking if the list is empty.  
+
+13. BRPOP key [key ...] timeout	 
+	- Removes and returns the last element, blocking if the list is empty.  
+
+14. BRPOPLPUSH source destination timeout  
+	- Pops from source and pushes to destination, blocking if needed.  
+
+### Moving Elements Between Lists  
+
+15. RPOPLPUSH source destination  
+	- Removes last element from source and pushes it to the head of destination.  
+
+*Summary*  
+
+Redis lists are flexible and efficient for queue-like structures. Here are the key takeaways:
+
+- LPUSH / RPUSH → Insert at start/end.  
+- LPOP / RPOP → Remove from start/end.  
+- LRANGE → Retrieve elements.  
+- LLEN → Get list size.  
+- LSET → Modify elements.  
+- Blocking operations → Useful for queues.  
+
+## Use Cases Of Redis Lists  
+
+1. Message Queues - Using LPUSH and RPOP for FIFO queues.  
+2. Recent Activity Feeds - Using LPUSH to store latest actions. (for example something like terminal auto suggestion)  
+3. Task Processing - Using BRPOP to distribute tasks.  
+
 # Hash  
+
+## Hash Concept  
 
 In Redis, a hash is a data structure that maps fields to values, similar to a dictionary or a key-value store within a key. It's useful for storing objects with multiple attributes.  
 
-## Commands
+## Hash Commands
 - HSET key field value  
 (Sets a field in the hash.)
 - HGET key field  
@@ -305,7 +398,7 @@ Redis Pipeline is a powerful feature for optimizing performance by reducing roun
 
 a Set is an unordered collection of unique strings. Sets are highly efficient for operations like checking membership, intersections, unions, and differences between multiple sets.  
 
-## Concept
+## Set Concept
 
 - **Unique Elements**: A Redis set does not allow duplicate elements.
 - **Unordered**: Elements inside a set do not maintain a specific order.
@@ -313,7 +406,7 @@ a Set is an unordered collection of unique strings. Sets are highly efficient fo
 - **Supports Set Operations**: Redis supports union, intersection, and difference operations on sets.
 - **Efficient for Membership Checks**: SISMEMBER allows quick lookups.
 
-## Commands
+## Set Commands
 
 - *SADD key member [member ...]*  
 Adds multiple values to the set.  
@@ -377,7 +470,7 @@ Returns the number of elements in the resulting set.
 
 # Sorted Set  
 
-## Concept  
+## Sorted Set Concept  
 
 A Sorted Set in Redis is a collection of unique elements, each associated with a floating-point score. Elements are ordered by their scores in ascending order. It is useful for ranking systems, leaderboards, priority queues, etc.
 
@@ -385,7 +478,7 @@ The key identifies the sorted set.
 Each member in the set is unique, but scores can be duplicated.  
 The set is always maintained in sorted order based on scores.  
 
-## Commands  
+## Sorted Set Commands  
 
 ### Adding & Updating Elements
 
