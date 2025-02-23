@@ -17,7 +17,11 @@
 7. [Sorted Set](#sorted-set)
 	- [Concept](#sorted-set-concept)
 	- [Commands](#sorted-set-commands)
-
+8. [Bitmaps](#bitmaps)
+	- [Concept](#concept-of-redis-bitmaps)
+	- [Commands](#bitmap-commands)
+	- [Use Cases](#use-cases-of-redis-bitmaps)
+	- [Limitations](#limitations-of-redis-bitmaps)
 # Introduction
 
 - redis is fast  
@@ -607,8 +611,76 @@ The set is always maintained in sorted order based on scores.
 	- BZPOPMAX is the blocking variant of the sorted set ZPOPMAX primitive.  
 
 *summary:* 
-- ZADD is used to insert/update elements.
-- ZRANGE and ZREVRANGE retrieve elements.
-- ZSCORE, ZRANK return ranking-related data.
-- ZUNIONSTORE, ZINTERSTORE perform set operations.
-- ZPOPMIN, ZPOPMAX remove elements efficiently.
+- ZADD is used to insert/update elements.  
+- ZRANGE and ZREVRANGE retrieve elements.  
+- ZSCORE, ZRANK return ranking-related data.  
+- ZUNIONSTORE, ZINTERSTORE perform set operations.  
+- ZPOPMIN, ZPOPMAX remove elements efficiently.  
+
+
+# Bitmaps  
+
+## Concept Of Redis Bitmaps  
+
+Bitmaps in Redis are a special type of data structure that allows manipulation of individual bits within a string value. Bitmaps are useful for efficiently storing and querying boolean (true/false) states, such as tracking user activity, feature flags, or binary representations.
+
+*Key Characteristics of Bitmaps*
+- Bit-Level Manipulation: Unlike standard strings, bitmaps operate on individual bits.
+- Memory Efficient: Since a bit only requires 1/8th of a byte, a single Redis string (up to 512MB) can store billions of bits.
+- Fast Bitwise Operations: Useful for analytics and tracking.  
+
+## Bitmap Commands  
+
+### Setting and Getting Bits  
+
+1. SETBIT key offset value  
+	- Set a specific bit in a string
+	- key: The Redis key that stores the bitmap.  
+	- offset: The position of the bit.  
+	- value: Either 0 (false) or 1 (true).  
+
+2. GETBIT key offset  
+	- Get the value of a specific bit  
+
+### Counting and Analyzing Bits  
+
+3. BITCOUNT key [start end]  
+	- Count the number of bits set to 1  
+	- If no range is provided, it counts all bits
+
+4. BITPOS key bit [start end]  
+	- Find the first bit with a given value  
+	- Finds the position of the first occurrence of bit (0 or 1)
+	- Optional start and end parameters define the range  
+
+### Performing Bitwise Operations  
+
+5. BITOP operation destkey key1 [key2 ...]  
+	- Perform bitwise operations on multiple keys  
+	- operation: AND, OR, XOR, or NOT  
+	- destkey: The key where the result will be stored  
+
+### Using Bitfields for More Control  
+
+6. BITFIELD key [subcommand ...]  
+    - Perform multiple bitwise operations in one command  
+    - Supports operations like:
+     	- INCRBY: Increment bits as if they were integers.
+     	- SET: Set a specific bit range.
+     	- GET: Retrieve bits as an integer.
+
+## Use Cases Of Redis Bitmaps  
+
+1. User Activity Tracking: Track whether a user was active on a given day.  
+2. Feature Flags: Enable or disable features for specific users.  
+3. Real-Time Analytics: Count the number of active users in a time range.  
+4. Bloom Filters & Probabilistic Data Structures: Used in combination with other techniques.  
+
+## Limitations Of Redis Bitmaps  
+- No direct deletion of bits: You can only set or reset them.  
+- Fixed-size memory: Since bitmaps are stored as strings, they have a 512MB limit per key.  
+- No automatic compression: Unlike specialized bit-oriented databases, Redis does not compress bitmaps.  
+
+## Summary  
+
+Redis Bitmaps are a powerful tool for efficient storage and manipulation of large-scale boolean data. With commands like SETBIT, GETBIT, BITCOUNT, and BITOP, you can build complex data analytics and tracking systems with minimal memory overhead.
