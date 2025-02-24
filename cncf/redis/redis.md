@@ -22,6 +22,11 @@
 	- [Commands](#bitmap-commands)
 	- [Use Cases](#use-cases-of-redis-bitmaps)
 	- [Limitations](#limitations-of-redis-bitmaps)
+9. [HyperLogLog](#hyperloglog)
+	- [Concept](#concept-of-hyperloglog)
+	- [Commands](#commands-of-hyperloglog)
+	- [Use Cases](#use-cases-of-hyperloglog)
+	- [Limitations](#limitations-of-hyperloglog)
 # Introduction
 
 - redis is fast  
@@ -683,4 +688,46 @@ Bitmaps in Redis are a special type of data structure that allows manipulation o
 
 ## Summary  
 
-Redis Bitmaps are a powerful tool for efficient storage and manipulation of large-scale boolean data. With commands like SETBIT, GETBIT, BITCOUNT, and BITOP, you can build complex data analytics and tracking systems with minimal memory overhead.
+Redis Bitmaps are a powerful tool for efficient storage and manipulation of large-scale boolean data. With commands like SETBIT, GETBIT, BITCOUNT, and BITOP, you can build complex data analytics and tracking systems with minimal memory overhead.  
+
+# HyperLogLog  
+
+## Concept Of HyperLogLog  
+
+HyperLogLog is a probabilistic data structure in Redis used to estimate the cardinality (the number of unique elements) of a dataset with high accuracy and low memory usage. It is particularly useful for counting distinct values in large datasets while using only 12 KB of memory (regardless of dataset size).  
+
+Unlike traditional methods that require storing all unique elements, HyperLogLog approximates cardinality using hashing techniques, making it highly memory efficient.  
+
+*Key Features of HyperLogLog in Redis*  
+- **Memory Efficient**: Uses only 12 KB of memory to store cardinality estimates.
+- **Approximate Counting**: It does not return exact results but provides an estimated count with an error rate of ~0.81%.
+- **Scalable**: Works well with big data scenarios where tracking unique values is impractical with standard data structures like sets.  
+
+## Commands Of HyperLogLog  
+
+1. PFADD key [element [element ...]] 
+	- Adds elements to a HyperLogLog data structure.
+	- O(1) to add every element
+
+2. PFCOUNT key [key ...]  
+	- Estimates the number of unique elements in a HyperLogLog (cardinality)  
+	- O(1) with a very small average constant time when called with a single key. O(N) with N being the number of keys, and much bigger constant times, when called with multiple keys.  
+
+3. PFMERGE destkey [sourcekey [sourcekey ...]]  
+	- O(N) to merge N HyperLogLogs, but with high constant times  
+	- Merge multiple HyperLogLog values into a unique value that will approximate the cardinality of the union of the observed Sets of the source HyperLogLog structures.  
+
+## Use Cases Of HyperLogLog  
+- Counting Unique Visitors on a Website  
+Track how many unique users visit a website per day without storing every user ID.
+- Counting Unique IP Addresses in Network Logs  
+Track the number of unique IP addresses over a period.
+- Counting Unique Hashtags or Search Queries  
+Analyze social media hashtags or search queries efficiently.
+
+## Limitations Of HyperLogLog
+- **Approximate Results**: Not suitable where exact counting is required.
+- **Not for Data Retrieval**: You can count unique elements but cannot retrieve the stored values.  
+
+## Summary  
+HyperLogLog is a powerful and memory-efficient way to estimate the cardinality of large datasets in Redis. By using only 12 KB of memory, it allows for efficient counting without maintaining the entire dataset, making it perfect for big data applications.
