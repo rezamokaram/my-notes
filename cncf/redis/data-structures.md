@@ -1,4 +1,4 @@
-# Redis.io
+# Redis Data Structures
 
 1. [Introduction](#introduction)
 2. [Strings and Basic commands](#strings-and-basic-commands)
@@ -27,6 +27,12 @@
 	- [Commands](#commands-of-hyperloglog)
 	- [Use Cases](#use-cases-of-hyperloglog)
 	- [Limitations](#limitations-of-hyperloglog)
+10. [Bitfields](#bitfields)
+	- [Concept](#concept-of-bitfields)
+	- [Commands](#commands-of-bitfields)
+	- [Advantages](#advantages-of-bitfields)
+	- [Limitations](#limitations-of-bitfields)
+
 # Introduction
 
 - redis is fast  
@@ -730,4 +736,86 @@ Analyze social media hashtags or search queries efficiently.
 - **Not for Data Retrieval**: You can count unique elements but cannot retrieve the stored values.  
 
 ## Summary  
-HyperLogLog is a powerful and memory-efficient way to estimate the cardinality of large datasets in Redis. By using only 12 KB of memory, it allows for efficient counting without maintaining the entire dataset, making it perfect for big data applications.
+HyperLogLog is a powerful and memory-efficient way to estimate the cardinality of large datasets in Redis. By using only 12 KB of memory, it allows for efficient counting without maintaining the entire dataset, making it perfect for big data applications.  
+
+# Bitfields
+
+## Concept Of Bitfields  
+
+Redis Bitfields are an extension of Bitmaps that allow you to store and manipulate integers of arbitrary sizes within a single Redis string. This is useful when you want to manage compact data structures like counters or flags without needing multiple keys.  
+
+**What Are Redis Bitfields?**  
+
+Unlike normal Bitmaps, where each bit is treated separately, Bitfields let you treat groups of bits as individual integers. You can store multiple small integers within a single string key and perform atomic operations on them.  
+For example, in a 32-bit Redis string, you can store:
+- A 4-bit number at offset 0
+- An 8-bit number at offset 4
+- A 16-bit number at offset 12
+This allows efficient storage and atomic updates. 
+
+## Commands Of Bitfields  
+
+1. BITFIELD key [GET encoding offset | [OVERFLOW <WRAP | SAT | FAIL>]
+  <SET encoding offset value | INCRBY encoding offset increment>
+  [GET encoding offset | [OVERFLOW <WRAP | SAT | FAIL>]
+  <SET encoding offset value | INCRBY encoding offset increment>
+  ...]]  
+
+- GET – Reads a specific bitfield value.
+- SET – Writes a value to a specific bitfield.
+- INCRBY – Increments a bitfield value by a given amount.
+- OVERFLOW – Defines how values behave when they exceed their bit width (WRAP, SAT, FAIL).  
+
+*A. Storing and Retrieving Values*
+#### Storing a Value (`SET`)
+```sh
+BITFIELD user_scores SET u8 0 100
+```
+- Stores the **number 100** as an **8-bit unsigned integer (`u8`)** at offset `0`.
+
+#### Retrieving a Value (`GET`)
+```sh
+BITFIELD user_scores GET u8 0
+```
+- Reads the **8-bit unsigned integer** stored at offset `0` (returns `100`).
+
+---
+
+*B. Incrementing a Value (`INCRBY`)*
+You can **increment** a bitfield value atomically:
+
+```sh
+BITFIELD user_scores INCRBY u8 0 10
+```
+- Increases the **8-bit** value at offset `0` by **10**.
+
+---
+
+*C. Handling Overflow (`OVERFLOW`)*
+When a bitfield reaches its maximum possible value, you can define **overflow behavior**:
+
+1. **WRAP** – Loops back to 0 when exceeding the limit (like modular arithmetic).
+2. **SAT (Saturate)** – Stays at the max/min value when exceeding the limit.
+3. **FAIL** – Returns an error if an overflow occurs.
+
+Example:
+```sh
+BITFIELD user_scores OVERFLOW SAT INCRBY u8 0 200
+```
+- If the **u8 (8-bit)** number reaches **255**, it **stays at 255** instead of rolling over.
+
+---
+
+2. BITFIELD_RO key [GET encoding offset [GET encoding offset ...]]
+- Read-only variant of the BITFIELD command. It is like the original BITFIELD but only accepts GET subcommand and can safely be used in read-only replicas.  
+
+## Advantages of Bitfields
+✅ **Memory Efficient** – Store multiple integers in a single key using bits.  
+✅ **Atomic Operations** – Multiple bitfield operations in a **single Redis command**.  
+✅ **Flexible Overflow Handling** – Prevent data corruption with controlled overflow.  
+✅ **Ideal for Compact Counters** – Great for tracking user activity, game scores, etc.  
+
+## Limitations of Bitfields
+❌ **No Expiration on Individual Fields** – Redis expiration applies to the entire key, not parts of it.  
+❌ **Limited Readability** – Hard to debug directly since data is stored as bits.  
+❌ **Offset Management** – You must manually track bit positions to avoid overlap.  
