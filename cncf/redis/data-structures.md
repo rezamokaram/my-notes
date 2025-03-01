@@ -1,38 +1,80 @@
 # Redis Data Structures
 
-1. [Introduction](#introduction)
-2. [Strings and Basic commands](#strings-and-basic-commands)
-3. [List](#list)
-	- [Concept](#list-concept)
-	- [Commands](#list-commands)
-	- [Use Cases](#use-cases-of-redis-lists)
-4. [Hash](#hash)
-    - [Concept](#hash-concept)
-	- [Commands](#hash-commands)
-5. [Pipelines](#pipelines)
-	- [Concept](#pipelines-concept)
-6. [Set](#set)
-	- [Concept](#set-concept)
-	- [Commands](#set-commands)
-7. [Sorted Set](#sorted-set)
-	- [Concept](#sorted-set-concept)
-	- [Commands](#sorted-set-commands)
-8. [Bitmaps](#bitmaps)
-	- [Concept](#concept-of-redis-bitmaps)
-	- [Commands](#bitmap-commands)
-	- [Use Cases](#use-cases-of-redis-bitmaps)
-	- [Limitations](#limitations-of-redis-bitmaps)
-9. [HyperLogLog](#hyperloglog)
-	- [Concept](#concept-of-hyperloglog)
-	- [Commands](#commands-of-hyperloglog)
-	- [Use Cases](#use-cases-of-hyperloglog)
-	- [Limitations](#limitations-of-hyperloglog)
-10. [Bitfields](#bitfields)
-	- [Concept](#concept-of-bitfields)
-	- [Commands](#commands-of-bitfields)
-	- [Advantages](#advantages-of-bitfields)
-	- [Limitations](#limitations-of-bitfields)
-
+- [Redis Data Structures](#redis-data-structures)
+- [Introduction](#introduction)
+- [Strings and Basic commands](#strings-and-basic-commands)
+	- [Number commands](#number-commands)
+- [List](#list)
+	- [List Concept](#list-concept)
+	- [List Commands](#list-commands)
+		- [Adding Elements to a List](#adding-elements-to-a-list)
+		- [Retrieving Elements](#retrieving-elements)
+		- [Removing Elements](#removing-elements)
+		- [Modifying Elements](#modifying-elements)
+		- [Blocking Operations (Useful for Queues)](#blocking-operations-useful-for-queues)
+		- [Moving Elements Between Lists](#moving-elements-between-lists)
+	- [Use Cases Of Redis Lists](#use-cases-of-redis-lists)
+- [Hash](#hash)
+	- [Hash Concept](#hash-concept)
+	- [Hash Commands](#hash-commands)
+	- [Use Cases](#use-cases)
+		- [use](#use)
+		- [don't use](#dont-use)
+	- [Summary](#summary)
+- [Pipelines](#pipelines)
+	- [Concept](#concept)
+		- [**Key Benefits of Using Pipelining:**](#key-benefits-of-using-pipelining)
+	- [**2. How Redis Pipeline Works**](#2-how-redis-pipeline-works)
+		- [**Without Pipelining (Normal Execution)**](#without-pipelining-normal-execution)
+		- [**With Pipelining**](#with-pipelining)
+	- [**3. Redis Pipeline Commands**](#3-redis-pipeline-commands)
+		- [**Using Golang (`go-redis` package)**](#using-golang-go-redis-package)
+	- [**4. Redis Pipeline vs. Transaction**](#4-redis-pipeline-vs-transaction)
+	- [Example of Redis Transaction in Golang](#example-of-redis-transaction-in-golang)
+	- [5. When to Use Redis Pipelining?](#5-when-to-use-redis-pipelining)
+	- [6. Common Mistakes \& Best Practices](#6-common-mistakes--best-practices)
+	- [Conclusion](#conclusion)
+- [Set](#set)
+	- [Set Concept](#set-concept)
+	- [Set Commands](#set-commands)
+- [Sorted Set](#sorted-set)
+	- [Sorted Set Concept](#sorted-set-concept)
+	- [Sorted Set Commands](#sorted-set-commands)
+		- [Adding \& Updating Elements](#adding--updating-elements)
+		- [Retrieving Elements](#retrieving-elements-1)
+		- [Counting \& Range Queries](#counting--range-queries)
+		- [Removing Elements](#removing-elements-1)
+		- [Lexicographical Operations (String Sorting)](#lexicographical-operations-string-sorting)
+		- [Intersection \& Union Operations](#intersection--union-operations)
+		- [Miscellaneous](#miscellaneous)
+- [Bitmaps](#bitmaps)
+	- [Concept Of Redis Bitmaps](#concept-of-redis-bitmaps)
+	- [Bitmap Commands](#bitmap-commands)
+		- [Setting and Getting Bits](#setting-and-getting-bits)
+		- [Counting and Analyzing Bits](#counting-and-analyzing-bits)
+		- [Performing Bitwise Operations](#performing-bitwise-operations)
+		- [Using Bitfields for More Control](#using-bitfields-for-more-control)
+	- [Use Cases Of Redis Bitmaps](#use-cases-of-redis-bitmaps)
+	- [Limitations Of Redis Bitmaps](#limitations-of-redis-bitmaps)
+	- [Summary](#summary-1)
+- [HyperLogLog](#hyperloglog)
+	- [Concept Of HyperLogLog](#concept-of-hyperloglog)
+	- [Commands Of HyperLogLog](#commands-of-hyperloglog)
+	- [Use Cases Of HyperLogLog](#use-cases-of-hyperloglog)
+	- [Limitations Of HyperLogLog](#limitations-of-hyperloglog)
+	- [Summary](#summary-2)
+- [Bitfields](#bitfields)
+	- [Concept Of Bitfields](#concept-of-bitfields)
+	- [Commands Of Bitfields](#commands-of-bitfields)
+			- [Storing a Value (`SET`)](#storing-a-value-set)
+			- [Retrieving a Value (`GET`)](#retrieving-a-value-get)
+	- [Advantages of Bitfields](#advantages-of-bitfields)
+	- [Limitations of Bitfields](#limitations-of-bitfields)
+- [Geospatial Indexes](#geospatial-indexes)
+	- [Concept Of Geospatial Indexes](#concept-of-geospatial-indexes)
+	- [Commands Of Geospatial Indexes](#commands-of-geospatial-indexes)
+	- [Use Cases of Geospatial Indexing](#use-cases-of-geospatial-indexing)
+	
 # Introduction
 
 - redis is fast  
@@ -819,3 +861,47 @@ BITFIELD user_scores OVERFLOW SAT INCRBY u8 0 200
 ❌ **No Expiration on Individual Fields** – Redis expiration applies to the entire key, not parts of it.  
 ❌ **Limited Readability** – Hard to debug directly since data is stored as bits.  
 ❌ **Offset Management** – You must manually track bit positions to avoid overlap.  
+
+# Geospatial Indexes  
+
+## Concept Of Geospatial Indexes
+
+geospatial indexes allow you to store, query, and manipulate location-based (latitude/longitude) data efficiently. This is done using the GEO commands, which leverage a sorted set (ZSET) under the hood.
+
+How Geospatial Indexes Work in Redis
+- **Storage**: Redis stores geospatial data using a sorted set, where locations are indexed by a unique key, and their positions are encoded into a geohash.
+- **Encoding**: Redis converts latitude/longitude coordinates into a geohash, which is a single number that represents the location with a certain level of precision.
+- **Efficiency**: Queries are fast because Redis uses geohash-based indexing to perform spatial lookups.  
+
+## Commands Of Geospatial Indexes
+
+1. GEOADD key [NX | XX] [CH] longitude latitude member [longitude
+  latitude member ...]  
+
+- Adds the specified geospatial items (longitude, latitude, name) to the specified key. Data is stored into the key as a sorted set, in a way that makes it possible to query the items with the GEOSEARCH command.  
+- (log(N)) for each item added, where N is the number of elements in the sorted set.  
+
+2. GEOPOS key [member [member ...]]  
+- O(1)
+- Return the positions (longitude,latitude) of all the specified members of the geospatial index represented by the sorted set at key  
+
+3. GEODIST key member1 member2 [M | KM | FT | MI]  
+- O(1)  
+- Return the distance between two members in the geospatial index represented by the sorted set.  
+
+4. GEORADIUS key longitude latitude radius <M | KM | FT | MI>
+  [WITHCOORD] [WITHDIST] [WITHHASH] [COUNT count [ANY]] [ASC | DESC]
+  [STORE key | STOREDIST key]
+- deprecated
+- O(N+log(M)) where N is the number of elements inside the bounding box of the circular area delimited by center and radius and M is the number of items inside the index.
+- Return the members of a sorted set populated with geospatial information using GEOADD, which are within the borders of the area specified with the center location and the maximum distance from the center (the radius).  
+
+5. GEOHASH key [member [member ...]]  
+- O(1)  
+- Return valid Geohash strings representing the position of one or more elements in a sorted set value representing a geospatial index (where elements were added using GEOADD).  
+
+## Use Cases of Geospatial Indexing  
+- Finding nearby stores, restaurants, or services (e.g., "show me all gas stations within 10 km").
+- Ride-sharing and delivery apps (e.g., "find the closest available driver").
+- Geofencing (e.g., "notify users when they enter a specific area").
+- Logistics and supply chain tracking.
