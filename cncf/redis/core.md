@@ -1,6 +1,6 @@
-# Redis Data Structures
+# Redis Core Concepts
 
-- [Redis Data Structures](#redis-data-structures)
+- [Redis Core Concepts](#redis-core-concepts)
 - [Introduction](#introduction)
 - [Strings and Basic commands](#strings-and-basic-commands)
 	- [Number commands](#number-commands)
@@ -74,6 +74,12 @@
 	- [Concept Of Geospatial Indexes](#concept-of-geospatial-indexes)
 	- [Commands Of Geospatial Indexes](#commands-of-geospatial-indexes)
 	- [Use Cases of Geospatial Indexing](#use-cases-of-geospatial-indexing)
+- [Streams](#streams)
+	- [Concept Of Stream](#concept-of-stream)
+		- [A stream in Redis is an append-only log of messages (entries), where each entry has:](#a-stream-in-redis-is-an-append-only-log-of-messages-entries-where-each-entry-has)
+		- [Redis Streams Is Ideal For](#redis-streams-is-ideal-for)
+	- [Commands Of Streams](#commands-of-streams)
+	- [Summary of Important Redis Stream Commands](#summary-of-important-redis-stream-commands)
 	
 # Introduction
 
@@ -904,4 +910,126 @@ How Geospatial Indexes Work in Redis
 - Finding nearby stores, restaurants, or services (e.g., "show me all gas stations within 10 km").
 - Ride-sharing and delivery apps (e.g., "find the closest available driver").
 - Geofencing (e.g., "notify users when they enter a specific area").
-- Logistics and supply chain tracking.
+- Logistics and supply chain tracking.  
+
+# Streams  
+
+## Concept Of Stream  
+
+Redis Streams is a powerful data structure designed for handling real-time data and event streaming. It allows producers to append messages to a stream, and consumers can read messages in various ways, including consuming only new messages or processing historical ones.  
+
+### A stream in Redis is an append-only log of messages (entries), where each entry has:  
+
+- A unique ID (typically auto-generated).  
+- A set of fields and values (key-value pairs).  
+
+### Redis Streams Is Ideal For
+
+- Event-driven architectures.
+- Message queuing.
+- Data logging and monitoring.
+
+## Commands Of Streams
+
+1. XADD key [NOMKSTREAM] [<MAXLEN | MINID> [= | ~] threshold [LIMIT count]] <* | id> field value [field value ...]  
+- O(1)
+- Appends the specified stream entry to the stream at the specified key. If the key does not exist, as a side effect of running this command the key is created with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.  
+- An entry is composed of a list of field-value pairs. The field-value pairs are stored in the same order they are given by the user. Commands that read the stream, such as XRANGE or XREAD, are guaranteed to return the fields and values exactly in the same order they were added by XADD.  
+- XADD is the only Redis command that can add data to a stream, but there are other commands, such as XDEL and XTRIM, that are able to remove data from a stream.  
+
+2. XRANGE key start end [COUNT count]  
+
+- The command returns the stream entries matching a given range of IDs. The range is specified by a minimum and maximum ID. All the entries having an ID between the two specified or exactly one of the two IDs specified (closed interval) are returned.  
+- O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).  
+
+3. XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key ...] id [id ...]  
+
+- Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller. This command has an option to block if items are not available, in a similar fashion to BRPOP or BZPOPMIN and others.
+
+4. XREVRANGE key end start [COUNT count]  
+
+- O(N) with N being the number of elements returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).  
+- This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order, and also taking the start-end range in reverse order  
+- in XREVRANGE you need to state the end ID and later the start ID, and the command will produce all the element between (or exactly like) the two IDs, starting from the end side  
+
+5. XDEL key id [id ...]  
+
+- Removes the specified entries from a stream, and returns the number of entries deleted. This number may be less than the number of IDs passed to the command in the case where some of the specified IDs do not exist in the stream.  
+- Normally you may think at a Redis stream as an append-only data structure, however Redis streams are represented in memory, so we are also able to delete entries. This may be useful, for instance, in order to comply with certain privacy policies.
+
+6. XACK key group id [id ...]  
+- return the number of messages that were successfully acknowledged by the consumer group member.
+- Once a consumer successfully processes a message, it should call XACK so that such message does not get processed again, and as a side effect, the PEL entry about this message is also purged, releasing memory from the Redis server.
+
+7. XLEN key
+- Returns the number of entries inside a stream. If the specified key does not exist the command returns zero, as if the stream was empty. However note that unlike other Redis types, zero-length streams are possible, so you should call TYPE or EXISTS in order to check if a key exists or not.  
+
+8. XTRIM key <MAXLEN | MINID> [= | ~] threshold [LIMIT count]  
+- delete messages from the beginning of a stream.
+- XTRIM trims the stream by evicting older entries (entries with lower IDs) if needed.  
+- MAXLEN: Evicts entries as long as the stream's length exceeds the specified threshold, where threshold is a positive integer.
+- MINID: Evicts entries with IDs lower than threshold, where threshold is a stream ID.
+
+9. XSETID key last-id [ENTRIESADDED entries-added] [MAXDELETEDID max-deleted-id]  
+- The XSETID command is an internal command. It is used by a Redis master to replicate the last delivered ID of streams.  
+
+10. XINFO STREAM key [FULL [COUNT count]]  
+- This command returns information about the stream stored at <key>.  
+
+11. XGROUP  
+- This is a container command for stream consumer group management commands. To see the list of available commands you can call XGROUP HELP.  
+
+12. XINFO GROUPS key  
+- This command returns the list of all consumer groups of the stream stored at <key>.
+
+13. XINFO CONSUMERS key group  
+- This command returns the list of consumers that belong to the <groupname> consumer group of the stream stored at <key>.
+
+14. XREADGROUP GROUP group consumer [COUNT count] [BLOCK milliseconds] [NOACK] STREAMS key [key ...] id [id ...]  
+
+- The XREADGROUP command is a special version of the XREAD command with support for consumer groups. Probably you will have to understand the XREAD command before reading this page will makes sense.  
+- Moreover, if you are new to streams, we recommend to read our introduction to Redis Streams. Make sure to understand the concept of consumer group in the introduction so that following how this command works will be simpler.  
+
+15. XPENDING key group [[IDLE min-idle-time] start end count [consumer]]  
+- Fetching data from a stream via a consumer group, and not acknowledging such data, has the effect of creating pending entries. This is well explained in the XREADGROUP command, and even better in our introduction to Redis Streams. The XACK command will immediately remove the pending entry from the Pending Entries List (PEL) since once a message is successfully processed, there is no longer need for the consumer group to track it and to remember the current owner of the message.  
+
+16. XGROUP DESTROY key group  
+
+- The XGROUP DESTROY command completely destroys a consumer group.
+
+17. XGROUP DELCONSUMER key group consumer
+
+- The XGROUP DELCONSUMER command deletes a consumer from the consumer group. Sometimes it may be useful to remove old consumers since they are no longer used.  
+
+18. XGROUP CREATECONSUMER key group consumer  
+
+- Create a consumer named <consumername> in the consumer group <groupname> of the stream that's stored at <key>.  
+
+19. XAUTOCLAIM key group consumer min-idle-time start [COUNT count] [JUSTID]  
+
+- This command transfers ownership of pending stream entries that match the specified criteria. Conceptually, XAUTOCLAIM is equivalent to calling XPENDING and then XCLAIM, but provides a more straightforward way to deal with message delivery failures via SCAN-like semantics.  
+
+20. XCLAIM key group consumer min-idle-time id [id ...] [IDLE ms] [TIME unix-time-milliseconds] [RETRYCOUNT count] [FORCE] [JUSTID] [LASTID lastid]  
+
+- In the context of a stream consumer group, this command changes the ownership of a pending message, so that the new owner is the consumer specified as the command argument.
+
+21. XGROUP CREATE key group <id | $> [MKSTREAM] [ENTRIESREAD entries-read]  
+
+- Create a new consumer group uniquely identified by <groupname> for the stream stored at <key>
+
+## Summary of Important Redis Stream Commands
+
+| Command | Description |
+|---------|-------------|
+| `XADD stream_name * field1 value1 ...` | Add message to a stream |
+| `XRANGE stream_name start end` | Read messages by ID range |
+| `XREVRANGE stream_name + -` | Read latest messages in reverse order |
+| `XREAD COUNT N STREAMS stream_name 0` | Read messages (blocking/non-blocking) |
+| `XREAD BLOCK 5000 STREAMS stream_name $` | Blocking read for new messages |
+| `XGROUP CREATE stream_name group_name $` | Create a consumer group |
+| `XREADGROUP GROUP group_name consumer_name COUNT N STREAMS stream_name >` | Read messages in a consumer group |
+| `XACK stream_name group_name message_id` | Acknowledge a processed message |
+| `XPENDING stream_name group_name` | View unprocessed messages in a group |
+| `XCLAIM stream_name group_name consumer_name min-idle-time message_id` | Reassign unprocessed messages to another consumer |
+| `XTRIM stream_name MAXLEN N` | Trim stream to a max length to prevent unlimited growth |
+| `DEL stream_name` | Delete a stream |
