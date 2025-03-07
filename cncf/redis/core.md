@@ -80,6 +80,12 @@
 		- [Redis Streams Is Ideal For](#redis-streams-is-ideal-for)
 	- [Commands Of Streams](#commands-of-streams)
 	- [Summary of Important Redis Stream Commands](#summary-of-important-redis-stream-commands)
+- [PubSub](#pubsub)
+	- [Concept Of PubSub](#concept-of-pubsub)
+	- [Commands Of PubSub](#commands-of-pubsub)
+		- [Basic](#basic)
+		- [Other](#other)
+	- [Use Cases Of PubSub](#use-cases-of-pubsub)
 	
 # Introduction
 
@@ -1033,3 +1039,68 @@ Redis Streams is a powerful data structure designed for handling real-time data 
 | `XCLAIM stream_name group_name consumer_name min-idle-time message_id` | Reassign unprocessed messages to another consumer |
 | `XTRIM stream_name MAXLEN N` | Trim stream to a max length to prevent unlimited growth |
 | `DEL stream_name` | Delete a stream |
+
+# PubSub  
+
+## Concept Of PubSub  
+
+Redis Pub/Sub is a messaging pattern that allows clients to send (publish) and receive (subscribe) messages through channels. Messages in Pub/Sub channels do not persist and can only be read if someone is subscribed to that channel.
+
+🔹 How It Works
+1. Publishers send messages to a specific channel.
+2. Subscribers listen to that channel and receive messages in real-time.
+3. Redis acts as a broker, ensuring messages are delivered to all subscribers.
+
+## Commands Of PubSub
+
+### Basic
+
+1. SUBSCRIBE channel [channel ...]    
+- A client subscribes to a channel to receive messages  
+
+2. PUBLISH channel message  
+- Another client can publish a message to the same channel
+
+3. UNSUBSCRIBE [channel [channel ...]]
+- Unsubscribes the client from the given channels, or from all of them if none is given.
+- When no channels are specified, the client is unsubscribed from all the previously subscribed channels. In this case, a message for every unsubscribed channel will be sent to the client.
+
+### Other
+
+4. PUBSUB CHANNELS [pattern]  
+- Lists the currently active channels.
+- An active channel is a Pub/Sub channel with one or more subscribers (excluding clients subscribed to patterns).  
+
+5. PSUBSCRIBE pattern [pattern ...]
+- Subscribes the client to the given patterns.
+
+6. SSUBSCRIBE shardchannel [shardchannel ...]  
+- Subscribes the client to the specified shard channels.
+
+7. SUNSUBSCRIBE [shardchannel [shardchannel ...]]
+- Unsubscribes the client from the given shard channels, or from all of them if none is given.  
+
+8. PUNSUBSCRIBE [pattern [pattern ...]]  
+- Unsubscribes the client from the given patterns, or from all of them if none is given.  
+
+9. SPUBLISH shardchannel message
+- Posts a message to the given shard channel.  
+
+10. PUBSUB NUMPAT  
+- Returns the number of unique patterns that are subscribed to by clients (that are performed using the PSUBSCRIBE command).
+
+11. PUBSUB NUMSUB [channel [channel ...]]
+- Returns the number of subscribers (exclusive of clients subscribed to patterns) for the specified channels.
+
+12. PUBSUB SHARDCHANNELS [pattern]  
+- Lists the currently active shard channels. An active shard channel is a Pub/Sub shard channel with one or more subscribers.
+- If no pattern is specified, all the channels are listed, otherwise if pattern is specified only channels matching the specified glob-style pattern are listed.  
+
+13. PUBSUB SHARDNUMSUB [shardchannel [shardchannel ...]]  
+- Returns the number of subscribers for the specified shard channels.
+- Note that it is valid to call this command without channels, in this case it will just return an empty list.  
+
+## Use Cases Of PubSub  
+✅ Real-time notifications  
+✅ Chat applications  
+✅ Live event updates (sports scores, stock prices)  
