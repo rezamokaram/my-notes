@@ -134,7 +134,7 @@ func main() {
 
     - You need fast insertions and lookups.  
     - You can tolerate false positives.  
-    - You don’t need deletions.  
+    - You don't need deletions.  
 
 - Use Cuckoo Filter if:
 
