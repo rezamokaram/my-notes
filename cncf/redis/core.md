@@ -1,6 +1,4 @@
-# Redis Core Concepts
-
-- [Redis Core Concepts](#redis-core-concepts)
+- [Redis Core](#redis-core)
 - [Introduction](#introduction)
 - [Strings and Basic commands](#strings-and-basic-commands)
 	- [Number commands](#number-commands)
@@ -87,6 +85,10 @@
 		- [Other](#other)
 	- [Use Cases Of PubSub](#use-cases-of-pubsub)
 	
+
+# Redis Core  
+
+
 # Introduction
 
 - redis is fast  

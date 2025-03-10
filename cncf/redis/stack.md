@@ -1,12 +1,27 @@
-# Redis Stack
-
 - [Redis Stack](#redis-stack)
-      - [](#)
+  - [What is Redis Stack?](#what-is-redis-stack)
+  - [Key Components of Redis Stack](#key-components-of-redis-stack)
 - [Bloom Filter](#bloom-filter)
   - [Concept Of Bloom Filter](#concept-of-bloom-filter)
   - [Commands Of Bloom Filter](#commands-of-bloom-filter)
   - [Use Cases](#use-cases)
   - [Bloom Filter Trade-offs](#bloom-filter-trade-offs)
+
+
+# Redis Stack
+
+## What is Redis Stack?
+Redis Stack is an extended version of Redis that bundles core Redis with additional modules to provide advanced functionality beyond simple key-value storage. It is designed for real-time applications that need capabilities like full-text search, time-series data, probabilistic data structures, and JSON storage.
+
+## Key Components of Redis Stack
+Redis Stack includes the following built-in modules:
+
+1. RedisJSON – Stores and queries JSON documents efficiently.
+2. RediSearch – Provides full-text search and secondary indexing.
+3. RedisTimeSeries – Optimized for time-series data with fast inserts and queries.
+4. RedisBloom – Implements probabilistic data structures (Bloom filters, Cuckoo filters, Top-K, Count-Min Sketch).
+5. RedisGraph – Graph database for efficient graph queries.
+
 
 
 # Bloom Filter
