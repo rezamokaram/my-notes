@@ -6,6 +6,10 @@
   - [Commands Of Bloom Filter](#commands-of-bloom-filter)
   - [Use Cases](#use-cases)
   - [Bloom Filter Trade-offs](#bloom-filter-trade-offs)
+- [Cuckoo Filter](#cuckoo-filter)
+  - [Concept](#concept)
+  - [Commands for Redis Cuckoo Filter](#commands-for-redis-cuckoo-filter)
+  - [Use Cases](#use-cases-1)
 
 
 # Redis Stack
@@ -89,4 +93,64 @@ A Bloom filter in Redis is a probabilistic data structure used for checking whet
 
 🔹 Cons:  
 - False positives are possible.
-- No deletion of individual items (but you can drop the filter).
+- No deletion of individual items (but you can drop the filter).  
+
+# Cuckoo Filter  
+
+## Concept  
+
+A Cuckoo Filter is a space-efficient probabilistic data structure used for set membership testing, similar to a Bloom Filter. It supports insertion, lookup, and deletion, making it more flexible than Bloom Filters.  
+
+**Why Use a Cuckoo Filter in Redis?**  
+More efficient than Bloom Filters for certain use cases.
+Supports deletion, unlike Bloom Filters.
+Low false positive rate.
+Used in fraud detection, caching, and duplicate detection.
+
+## Commands for Redis Cuckoo Filter  
+
+1. CF.ADD key item
+- Adds ana item to the cuckoo filter.  
+
+2. CF.ADDNX key item  
+- Adds an item to a cuckoo filter if the item does not exist.  
+
+3. CF.COUNT key item  
+- Returns an estimation of the number of times a given item was added to a cuckoo filter.  
+
+4. CF.DEL key item
+- Deletes an item once from the filter.  
+
+5. CF.EXISTS key item  
+- Determines whether a given item was added to a cuckoo filter.  
+
+6. CF.INFO key  
+- Returns information about a cuckoo filter.
+
+7. CF.INSERT key [CAPACITY capacity] [NOCREATE] ITEMS item [item ...]  
+- Adds one or more items to a cuckoo filter, allowing the filter to be created with a custom capacity if it does not exist yet.  
+
+8. CF.INSERTNX key [CAPACITY capacity] [NOCREATE] ITEMS item [item ...]  
+- Adds one or more items to a cuckoo filter if they did not exist previously, allowing the filter to be created with a custom capacity if it does not exist yet.  
+
+9. CF.LOADCHUNK key iterator data  
+- restore a filter previously saved using SCANDUMP  
+
+10. CF.MEXISTS key item [item ...]  
+- Determines whether one or more items were added to a cuckoo filter.  
+
+11. CF.RESERVE key capacity [BUCKETSIZE bucketsize] [MAXITERATIONS maxiterations] [EXPANSION expansion]  
+- Creates an empty cuckoo filter with a single sub-filter for the initial specified capacity.  
+
+12. CF.SCANDUMP key iterator  
+- Begins an incremental save of the cuckoo filter.  
+- This command is useful for large cuckoo filters that cannot fit into the DUMP and RESTORE model.  
+- The first time this command is called, the value of iter should be 0.  
+- This command returns successive (iter, data) pairs until (0, NULL) indicates completion.  
+
+## Use Cases
+✅ Fraud Prevention: Detecting duplicate transactions.  
+✅ Cache Filtering: Avoid unnecessary database lookups.  
+✅ Content Deduplication: Prevent duplicate messages in a messaging system.  
+✅ Rate Limiting: Track API requests without storing all past requests.  
+
