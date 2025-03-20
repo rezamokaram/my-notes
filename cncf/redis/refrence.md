@@ -1,6 +1,7 @@
 - [Redis Reference](#redis-reference)
 - [Eviction](#eviction)
   - [Configuring Eviction Policies](#configuring-eviction-policies)
+- [Client Handling](#client-handling)
 
 # Redis Reference
 Specifications and protocols
@@ -57,4 +58,8 @@ To set the eviction policy in Redis, you can modify the maxmemory-policy directi
     CONFIG SET maxmemory-policy allkeys-lru
 ```
 
-Choosing the appropriate eviction policy depends on your application's specific requirements and access patterns. Understanding these policies helps in optimizing Redis's performance and ensuring efficient memory utilization.
+Choosing the appropriate eviction policy depends on your application's specific requirements and access patterns. Understanding these policies helps in optimizing Redis's performance and ensuring efficient memory utilization.  
+
+# Client Handling
+
+TODO
