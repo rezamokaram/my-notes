@@ -5,6 +5,11 @@
 - [Pods](#pods)
   - [Key Characteristics of a Pod](#key-characteristics-of-a-pod)
   - [Applying The Manifest](#applying-the-manifest)
+- [ReplicaSet](#replicaset)
+  - [Key Features of ReplicaSet](#key-features-of-replicaset)
+  - [ReplicaSet Example Yaml file](#replicaset-example-yaml-file)
+  - [Comparison Between ReplicaSet \& Pod](#comparison-between-replicaset--pod)
+  - [Difference Between ReplicaSet \& Deployment](#difference-between-replicaset--deployment)
 
 # Kubernetes Manifest
 A Kubernetes manifest is a YAML (or JSON) file that defines the desired state of a Kubernetes object. It is used to create, update, and manage resources like Pods, Deployments, Services, ConfigMaps, etc.
@@ -121,7 +126,7 @@ To delete a specific pod, use:
 ```sh
 kubectl delete pod <pod-name>
 ```
-the pod name must match the pod name that you assigne in manifest.  
+the pod name must match the pod name that you assign in manifest.  
 
 If a pod is stuck in a terminating state, you can force delete it:
 
@@ -141,4 +146,91 @@ Delete Pods by Label Selector:
 kubectl delete pods -l app=my-app
 ```
 and so on.  
+
+# ReplicaSet
+
+A ReplicaSet (RS) is a Kubernetes resource that ensures a specified number of identical pods are always running. If a pod crashes or is deleted, the ReplicaSet automatically creates a new one to maintain the desired count.
+
+## Key Features of ReplicaSet
+- Ensures high availability by maintaining a fixed number of replicas
+- Automatically recreates pods if they fail
+- Uses selectors and labels to manage pods
+- Does NOT support rolling updates (Use Deployment instead)  
+
+## ReplicaSet Example Yaml file
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: test
+  namespace: default
+  labels:
+    app.kubernetes.io/env: development
+    app.kubernetes.io/name: test
+    app.kubernetes.io/project: test
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: test
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: test
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+```
+
+To apply the ReplicaSet:
+```sh
+kubectl apply -f replicaset.yaml
+```
+
+Check the ReplicaSet:
+```sh
+kubectl get rs
+```
+
+For request inside the cluster:
+```sh
+kubectl run curlpod --image=alpine --restart=Never -it -- sh
+```
+Delete and Recreate the ReplicaSet:
+```sh  
+# Delete the old ReplicaSet
+kubectl delete rs my-replicaset --cascade=orphan
+# Apply the updated YAML file
+kubectl apply -f replicaset.yaml
+# Manually delete old pods
+kubectl delete pod --selector=app=my-app
+```
+
+## Comparison Between ReplicaSet & Pod
+
+| Feature             | Pod | ReplicaSet |
+|--------------------|-----|------------|
+| Ensures pod count  | ❌ No | ✅ Yes |
+| Self-healing       | ❌ No | ✅ Yes |
+| Automatically recreates failed pods | ❌ No | ✅ Yes |
+| Manages multiple replicas | ❌ No | ✅ Yes |
+| Uses labels & selectors | ❌ No | ✅ Yes |
+| Supports scaling  | ❌ No | ✅ Yes |
+| Preferred for production | ❌ No | ✅ Yes |
+
+🔹 **Pods are the basic unit of deployment, but ReplicaSets ensure high availability by managing multiple replicas of a Pod.**
+
+
+## Difference Between ReplicaSet & Deployment
+
+| Feature         | ReplicaSet | Deployment |
+|----------------|------------|------------|
+| Ensures pod count | ✅ Yes | ✅ Yes |
+| Self-healing | ✅ Yes | ✅ Yes |
+| Supports rolling updates | ❌ No | ✅ Yes |
+| Preferred for production | ❌ No | ✅ Yes |
+
+🔹 **Use Deployment instead of ReplicaSet** unless you specifically need fine-grained control over pod scaling.
 
