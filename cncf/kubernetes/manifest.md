@@ -10,6 +10,9 @@
   - [ReplicaSet Example Yaml file](#replicaset-example-yaml-file)
   - [Comparison Between ReplicaSet \& Pod](#comparison-between-replicaset--pod)
   - [Difference Between ReplicaSet \& Deployment](#difference-between-replicaset--deployment)
+- [Deployment](#deployment)
+  - [Key Concepts of Kubernetes Deployment](#key-concepts-of-kubernetes-deployment)
+  - [Deployment Example Yaml File](#deployment-example-yaml-file)
 
 # Kubernetes Manifest
 A Kubernetes manifest is a YAML (or JSON) file that defines the desired state of a Kubernetes object. It is used to create, update, and manage resources like Pods, Deployments, Services, ConfigMaps, etc.
@@ -206,6 +209,12 @@ kubectl delete rs my-replicaset --cascade=orphan
 kubectl apply -f replicaset.yaml
 # Manually delete old pods
 kubectl delete pod --selector=app=my-app
+```  
+
+To scale replicaset(make it 10 replicas and then 1):  
+```sh
+kubectl scale replicaset test --replicas 10
+kubectl scale replicaset test --replicas 1
 ```
 
 ## Comparison Between ReplicaSet & Pod
@@ -234,3 +243,115 @@ kubectl delete pod --selector=app=my-app
 
 🔹 **Use Deployment instead of ReplicaSet** unless you specifically need fine-grained control over pod scaling.
 
+# Deployment  
+
+A Kubernetes Deployment is a resource object in Kubernetes that provides declarative updates for applications. It helps in managing, scaling, and rolling out updates to applications efficiently.
+
+## Key Concepts of Kubernetes Deployment
+
+1. **Declarative Configuration**  
+  You define the desired state of your application in a YAML or JSON file, and Kubernetes ensures the current state matches it.
+
+2. **Replica Management**  
+  Deployments allow you to run multiple replicas of your application (Pods), ensuring high availability and reliability.
+
+3. **Rolling Updates & Rollbacks**  
+  You can update your application with zero downtime using rolling updates.
+  If something goes wrong, you can easily revert to a previous version using rollbacks.
+
+4. **Self-healing**  
+  If a Pod fails, Kubernetes automatically replaces it to maintain the desired number of replicas.
+
+*Kubernetes Deployment works on top of a ReplicaSet to manage and control the lifecycle of Pods. Let me break it down:*
+
+```scss
+Deployment
+   ├── ReplicaSet(Current)
+   │      ├── Pod-1
+   │      ├── Pod-2
+   │      ├── Pod-3
+   │
+   ├── ReplicaSet(Old)[If an update was done]
+          ├── Pod-4
+          ├── Pod-5
+```  
+## Deployment Example Yaml File
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+  namespace: default
+  labels:
+    app.kubernetes.io/env: development
+    app.kubernetes.io/name: test
+    app.kubernetes.io/project: test
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: test
+      app.kubernetes.io/env: development
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: test
+        app.kubernetes.io/env: development
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+```
+
+To apply the manifest:  
+```sh
+kubectl apply -f deployment.yaml
+```
+
+Check the deployment status:
+```sh
+kubectl get deployments
+```
+
+Scale up/down:
+```sh
+kubectl scale deployment test --replicas=5
+```
+
+Change the image:
+```sh
+kubectl set image deployment/test my-app-container=new-image:latest
+```
+
+Rollback to a previous version:
+```sh
+kubectl rollout undo deployment test
+```
+
+Check the history of deployment revisions:
+```sh
+rollout history deployment test
+```
+
+Check the information of a specific revision:
+```sh
+kubectl rollout history deployment test --revision 4
+```
+
+Rollback to a specific revision of deployment:
+```sh
+kubectl rollout undo deployment test --to-revision 4
+```
+
+To run a command inside one of pods:
+```sh
+kubectl exec test-68b7569f6d-7q6ff -- nginx -v
+```
