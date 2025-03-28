@@ -19,6 +19,11 @@
   - [DaemonSet Manifest Example](#daemonset-manifest-example)
   - [Difference Between Deployment \& DaemonSet](#difference-between-deployment--daemonset)
   - [Quick Summary](#quick-summary)
+- [StatefulSet](#statefulset)
+  - [What is a StatefulSet?](#what-is-a-statefulset)
+  - [Features of StatefulSet](#features-of-statefulset)
+  - [When to Use StatefulSet](#when-to-use-statefulset)
+  - [Example StatefulSet Manifest](#example-statefulset-manifest)
 
 # Kubernetes Manifest
 A Kubernetes manifest is a YAML (or JSON) file that defines the desired state of a Kubernetes object. It is used to create, update, and manage resources like Pods, Deployments, Services, ConfigMaps, etc.
@@ -434,3 +439,87 @@ spec:
 2. Used for Node-level services
 3. Auto-scales when Nodes are added or removed
 4. Can be targeted to specific Nodes
+
+# StatefulSet
+
+StatefulSet is one of the most important workload resources in Kubernetes, especially when you’re dealing with apps that need stable network identity, stable storage, and ordered deployment.
+
+## What is a StatefulSet?
+
+    A StatefulSet is a Kubernetes resource used to manage stateful applications.
+
+    While Deployment and ReplicaSet are used for stateless applications (e.g., web servers), StatefulSet is used when each Pod has to maintain state or has unique configuration, identity, and storage.
+
+## Features of StatefulSet
+1. Stable & Unique Pod Names  
+Pods are named in an ordered pattern:
+pod-name-0, pod-name-1, pod-name-2, ...
+
+2. Stable Network Identity  
+Each Pod gets a unique DNS hostname like:
+pod-name-0.myservice
+
+3. Persistent Storage (Optional but common)  
+Each Pod can have its own PersistentVolumeClaim (PVC).  
+The volume is not deleted when the Pod is deleted.
+
+4. Ordered Deployment & Scaling   
+Pods are started and terminated in order (0 → 1 → 2).   
+Ensures ordered rollouts and rollbacks.
+
+5. Ordered Rolling Updates   
+Updates happen one Pod at a time, maintaining order.
+
+## When to Use StatefulSet
+Use StatefulSet when you need:  
+- Databases (e.g., MySQL, MongoDB, Cassandra)
+- Queues like Kafka, RabbitMQ
+- Distributed systems that need unique identities and persistent storage
+
+## Example StatefulSet Manifest
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: default
+  labels:
+    app.kubernetes.io/env: development
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/project: test
+spec:
+  serviceName: redis
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/env: development
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/env: development
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest
+          volumeMounts:
+            - name: redis-data
+              mountPath: /var/lib/redis
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+      spec:
+        storageClassName: local-path
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+```
+
+To check PersistentVolumeClaims:
+```sh
+kubectl get pvc
+```
