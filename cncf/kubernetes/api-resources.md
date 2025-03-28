@@ -13,6 +13,12 @@
 - [Deployment](#deployment)
   - [Key Concepts of Kubernetes Deployment](#key-concepts-of-kubernetes-deployment)
   - [Deployment Example Yaml File](#deployment-example-yaml-file)
+- [DaemonSet](#daemonset)
+  - [How Does It Work?](#how-does-it-work)
+  - [When Do We Use DaemonSet?](#when-do-we-use-daemonset)
+  - [DaemonSet Manifest Example](#daemonset-manifest-example)
+  - [Difference Between Deployment \& DaemonSet](#difference-between-deployment--daemonset)
+  - [Quick Summary](#quick-summary)
 
 # Kubernetes Manifest
 A Kubernetes manifest is a YAML (or JSON) file that defines the desired state of a Kubernetes object. It is used to create, update, and manage resources like Pods, Deployments, Services, ConfigMaps, etc.
@@ -355,3 +361,76 @@ To run a command inside one of pods:
 ```sh
 kubectl exec test-68b7569f6d-7q6ff -- nginx -v
 ```
+
+# DaemonSet  
+
+A DaemonSet is a special kind of Workload Resource in Kubernetes that ensures exactly *one Pod is running on every Node* in the cluster (or on a specific group of Nodes).
+
+You can think of it like:  
+`Run one copy of this Pod on every Node.`
+
+## How Does It Work?
+- When you create a DaemonSet, Kubernetes automatically schedules one Pod on every Node.
+
+- If a new Node is added to the cluster, Kubernetes will automatically run a Pod on it.
+
+- If a Node is removed, the Pod on that Node is deleted.
+
+- You can also limit the DaemonSet to run on specific Nodes using node selectors or node affinity.
+
+## When Do We Use DaemonSet?
+DaemonSets are used when you want to run background or infrastructure services on every Node, such as:
+
+- Log collectors → e.g., Fluentd, Filebeat
+
+- Monitoring agents → e.g., Prometheus Node Exporter
+
+- Security agents → e.g., Intrusion detection agents
+
+- Network plugins → e.g., CNI plugins
+
+
+## DaemonSet Manifest Example
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: prometheus
+  labels:
+    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/name: node-exporter
+    app.kubernetes.io/project: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: node-exporter
+      app.kubernetes.io/part-of: monitoring
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: node-exporter
+        app.kubernetes.io/part-of: monitoring
+    spec:
+      containers:
+        - name: node-exporter
+          image: prom/node-exporter:latest
+```
+
+## Difference Between Deployment & DaemonSet
+
+| **Deployment**                                      | **DaemonSet**                                      |
+|----------------------------------------------------|----------------------------------------------------|
+| Runs specified number of replicas anywhere in the cluster | Runs exactly **1 Pod per Node** (or specific Nodes) |
+| Designed for **application workloads** (e.g., web servers, APIs) | Designed for **Node-level services** (e.g., log collectors, monitoring agents) |
+| Supports **scaling by changing replicas**          | **Scaling is tied to the number of Nodes**         |
+| New Pods can be scheduled on **any Node**          | Ensures there is always **one Pod on every Node**  |
+| Commonly used for **frontend, backend, databases** | Commonly used for **logging agents, monitoring agents, network plugins** |
+| Example: Run 5 replicas of Nginx                   | Example: Run 1 Fluentd agent on every Node         |
+
+## Quick Summary
+1. DaemonSet = 1 Pod per Node
+2. Used for Node-level services
+3. Auto-scales when Nodes are added or removed
+4. Can be targeted to specific Nodes
