@@ -29,6 +29,13 @@
   - [Types of Jobs:](#types-of-jobs)
   - [Use Cases for Jobs in Kubernetes](#use-cases-for-jobs-in-kubernetes)
   - [Example Of Job Manifest](#example-of-job-manifest)
+- [CronJob](#cronjob)
+  - [How Kubernetes CronJob Works](#how-kubernetes-cronjob-works)
+  - [Key Components](#key-components)
+  - [Use Cases of Kubernetes CronJobs](#use-cases-of-kubernetes-cronjobs)
+  - [Example Of CronJon Manifest](#example-of-cronjon-manifest)
+  - [Understanding the Schedule Format (cron Expression)](#understanding-the-schedule-format-cron-expression)
+  - [Concurrency Handling (.spec.concurrencyPolicy)](#concurrency-handling-specconcurrencypolicy)
 
 # Kubernetes Manifest
 A Kubernetes manifest is a YAML (or JSON) file that defines the desired state of a Kubernetes object. It is used to create, update, and manage resources like Pods, Deployments, Services, ConfigMaps, etc.
@@ -577,4 +584,77 @@ spec:
 To check jobs:
 ```sh
 kubectl get job
+```
+
+# CronJob  
+
+A Kubernetes (k8s) CronJob is used to run scheduled tasks in a Kubernetes cluster, similar to how you schedule jobs using `cron` in Linux. It allows you to run a job at a specific time or interval.  
+
+## How Kubernetes CronJob Works
+
+A CronJob in Kubernetes creates a Job object on a schedule you define. Each Job runs a Pod that performs the task and then terminates.
+
+## Key Components
+1. Schedule (.spec.schedule) – Defines when the job should run using a cron expression.
+
+2. Job Template (.spec.jobTemplate) – Specifies the actual job that will run.
+
+3. Concurrency Policy (.spec.concurrencyPolicy) – Controls how overlapping jobs are handled.
+
+4. Starting Deadline (.spec.startingDeadlineSeconds) – Specifies how long a job can be delayed before being skipped.
+
+5. Successful Jobs History (.spec.successfulJobsHistoryLimit) – Limits how many successful job records are kept.
+
+6. Failed Jobs History (.spec.failedJobsHistoryLimit) – Limits how many failed job records are kept.
+
+## Use Cases of Kubernetes CronJobs
+- ✅ Database backups – Run a backup job at midnight daily.
+- ✅ Log rotation – Clean up old logs every week.
+- ✅ Automated reports – Generate and send reports on a schedule.
+- ✅ Data processing – Process batches of data periodically.
+
+## Example Of CronJon Manifest 
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: test
+              image: alpine:latest
+              command: ["echo", "hello world!"]
+```
+
+for learning schedule patterns there is a good [website](https://crontab.guru/)
+
+## Understanding the Schedule Format (cron Expression)
+
+```sql
+ ┌───────────── minute (0-59)
+ │ ┌───────────── hour (0-23)
+ │ │ ┌───────────── day of month (1-31)
+ │ │ │ ┌───────────── month (1-12)
+ │ │ │ │ ┌───────────── day of week (0-6, Sunday=0 or 7)
+ │ │ │ │ │
+ * * * * *    (Every minute)
+```
+
+## Concurrency Handling (.spec.concurrencyPolicy)
+1. `Allow` (default) → Allows multiple jobs to run simultaneously.
+
+2. `Forbid` → Prevents a new job from starting if the previous job is still running.
+
+3. `Replace` → Stops the current job and replaces it with a new one.
+
+```yaml
+spec:
+  concurrencyPolicy: Forbid
 ```
