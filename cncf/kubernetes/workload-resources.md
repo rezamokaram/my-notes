@@ -24,6 +24,11 @@
   - [Features of StatefulSet](#features-of-statefulset)
   - [When to Use StatefulSet](#when-to-use-statefulset)
   - [Example StatefulSet Manifest](#example-statefulset-manifest)
+- [Job](#job)
+  - [Key Features of a Job:](#key-features-of-a-job)
+  - [Types of Jobs:](#types-of-jobs)
+  - [Use Cases for Jobs in Kubernetes](#use-cases-for-jobs-in-kubernetes)
+  - [Example Of Job Manifest](#example-of-job-manifest)
 
 # Kubernetes Manifest
 A Kubernetes manifest is a YAML (or JSON) file that defines the desired state of a Kubernetes object. It is used to create, update, and manage resources like Pods, Deployments, Services, ConfigMaps, etc.
@@ -522,4 +527,54 @@ spec:
 To check PersistentVolumeClaims:
 ```sh
 kubectl get pvc
+```
+
+# Job  
+
+a Job is a resource that is used to run a one-time or batch task until completion. Unlike Deployments, which manage long-running applications, a Job ensures that a specific number of pods successfully complete their tasks.
+
+## Key Features of a Job:
+1. Ensures Completion: A Job creates one or more pods and runs them until they complete successfully.
+
+2. Automatic Restart: If a pod fails, Kubernetes will restart it based on the Job’s restart policy.
+
+3. Parallel Execution: You can run multiple pods in parallel to complete a batch of work.
+
+## Types of Jobs:
+1. **Single Job (default)** – Runs a single pod until it succeeds.
+
+2. **Parallel Job** – Runs multiple pods in parallel for faster execution.
+
+3. **Work Queue Job** – Uses a queue-based system where each pod picks up tasks from a queue.  
+
+## Use Cases for Jobs in Kubernetes
+- Data processing tasks (ETL jobs)
+
+- Database migrations
+
+- Scheduled tasks (when combined with a CronJob)
+
+- Automated testing jobs
+
+## Example Of Job Manifest
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: greater
+spec:
+  # ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: greater
+        image: alpine:latest
+        command: ["false"]
+```  
+
+To check jobs:
+```sh
+kubectl get job
 ```
