@@ -52,9 +52,25 @@ helm install my-app ./my-app -f values.yaml  # Deploy with custom configs
 
 # helm upgrade
 
-helm upgrade nginx bitnami/nginx --set "image.tag=1.26.0"  
+This command upgrades a release to a new version of a chart.
+
+The upgrade arguments must be a release and chart. The chart
+argument can be either: a chart reference('example/mariadb'), a path to a chart directory,
+a packaged chart, or a fully qualified URL. For chart references, the latest
+version will be specified unless the '--version' flag is set.  
+
+To upgrade by image tag (related to chart):
+```sh
+helm upgrade nginx bitnami/nginx --set "image.tag=1.26.0"
+```  
+To upgrade by chart version (related to chart):
+```sh
 helm upgrade nginx bitnami/nginx --version 16.0.0  
+```
+To upgrade by replica count (related to chart):
+```sh
 helm upgrade nginx bitnami/nginx --set "replicaCount=1"  
+```  
 
 # helm list
 
