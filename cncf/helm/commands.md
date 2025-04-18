@@ -5,13 +5,17 @@
   - [helm repo list](#helm-repo-list-1)
 - [helm search](#helm-search)
 - [helm install](#helm-install)
+- [helm uninstall](#helm-uninstall)
+  - [flags](#flags)
 - [helm create](#helm-create)
 - [helm upgrade](#helm-upgrade)
+- [helm rollback](#helm-rollback)
+  - [flags](#flags-1)
 - [helm list](#helm-list)
-  - [flags](#flags)
+  - [flags](#flags-2)
 - [helm history](#helm-history)
 - [helm status](#helm-status)
-  - [flags](#flags-1)
+  - [flags](#flags-3)
 
 
 # helm repo
@@ -34,6 +38,8 @@ helm repo list
 shows existing repositories that we added using helm repo add
 
 # helm search
+// TODO
+
 # helm install
 
 Usage: `helm install < release-name > < repo-name-in-your-local/chart-name >`  
@@ -42,6 +48,18 @@ example:
 ```sh  
 helm install nginx bitnami/nginx 
 ```  
+# helm uninstall
+
+**This command takes a release name and uninstalls the release.**
+
+Usage:
+```sh
+helm uninstall RELEASE_NAME [...] [flags]
+```
+
+## flags
+
+- `--keep-history` remove all associated resources and mark the release as deleted, but retain the release history
 
 # helm create
 
@@ -71,17 +89,32 @@ To upgrade by replica count (related to chart):
 ```sh
 helm upgrade nginx bitnami/nginx --set "replicaCount=1"  
 ```  
+# helm rollback
 
-# helm list
+**The first argument of the rollback command is the name of a release, and the second is a revision (version) number. If this argument is omitted or set to 0, it will roll back to the previous release.**
 
-**This command lists all of the releases for a specified namespace**  
+Usage:
+```sh
+helm rollback <RELEASE> [REVISION] [flags]
+```
 
 ## flags
 
-- `--output` format        prints the output in the specified format. Allowed values: table, json, yaml (default table)  
-- `--superseded`           show superseded releases  
-- `--time-format` string   format time using golang time formatter. Example: --time-format "2006-01-02 15:04:05Z0700"  
-- `--uninstalled`          show uninstalled releases (if 'helm uninstall --keep-history' was used)  
+- `--cleanup-on-fail` allow deletion of new resources created in this rollback when rollback fails
+- `--dry-run` simulate a rollback
+- `--force` force resource update through delete/recreate if needed
+
+
+# helm list
+
+**This command lists all of the releases for a specified namespace.**  
+
+## flags
+
+- `--output format`        prints the output in the specified format. Allowed values: table, json, yaml (default table)  
+- `--superseded` show superseded releases  
+- `--time-format string`   format time using golang time formatter. Example: --time-format "2006-01-02 15:04:05Z0700"  
+- `--uninstalled` show uninstalled releases (if 'helm uninstall --keep-history' was used)  
 
 # helm history  
 
@@ -111,5 +144,5 @@ Usage:
 - `--show-desc`        if set, display the description message of the named release
 - `--show-resources`   if set, display the resources of the named release
 
-
-4cmp
+to-s : 8->1
+chk : g-flags
