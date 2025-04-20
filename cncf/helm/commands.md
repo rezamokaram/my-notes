@@ -1,21 +1,47 @@
 
+- [global flags](#global-flags)
 - [helm repo](#helm-repo)
   - [helm repo add](#helm-repo-add)
   - [helm repo list](#helm-repo-list)
   - [helm repo list](#helm-repo-list-1)
 - [helm search](#helm-search)
 - [helm install](#helm-install)
-- [helm uninstall](#helm-uninstall)
   - [flags](#flags)
+- [helm uninstall](#helm-uninstall)
+  - [flags](#flags-1)
 - [helm create](#helm-create)
 - [helm upgrade](#helm-upgrade)
-- [helm rollback](#helm-rollback)
-  - [flags](#flags-1)
-- [helm list](#helm-list)
   - [flags](#flags-2)
+- [helm rollback](#helm-rollback)
+  - [flags](#flags-3)
+- [helm list](#helm-list)
+  - [flags](#flags-4)
 - [helm history](#helm-history)
 - [helm status](#helm-status)
-  - [flags](#flags-3)
+  - [flags](#flags-5)
+- [helm get](#helm-get)
+  - [Available Commands:](#available-commands)
+
+# global flags
+
+These flags can be used with any `helm` command to control Helm's behavior globally.
+
+| Flag Usage | Description |
+|------------|-------------|
+| `--debug` | Enables verbose output for debugging purposes. Useful when troubleshooting errors or understanding what Helm is doing under the hood. |
+| `--kube-apiserver <URL>` | Specify the address and port of the Kubernetes API server (e.g., `https://127.0.0.1:6443`). |
+| `--kube-as-group <group1,group2,...>` | Specify a list of groups to impersonate when performing operations (can be used multiple times or comma-separated). |
+| `--kube-as-user <username>` | Impersonate the given user when interacting with the Kubernetes API server. |
+| `--kube-ca-file <path>` | Path to a certificate file for the certificate authority (CA) used to verify the Kubernetes API server’s certificate. |
+| `--kube-context <name>` | Use the specified context from the kubeconfig file (helpful if your kubeconfig has multiple clusters). |
+| `--kube-token <token>` | Bearer token for authentication to the Kubernetes API server (alternative to kubeconfig credentials). |
+| `--kubeconfig <path>` | Path to the kubeconfig file (default is usually `~/.kube/config`). |
+| `--namespace <namespace>` or `-n <namespace>` | Specify the namespace scope for this operation (defaults to `default` if not set). |
+| `--registry-config <path>` | Path to the registry config file used for OCI registries (default is `~/.config/helm/registry/config.json`). |
+| `--repository-cache <path>` | Path to the directory where Helm stores cached repository index files (default is `~/.cache/helm/repository`). |
+| `--repository-config <path>` | Path to the file containing Helm repository names and URLs (default is `~/.config/helm/repositories.yaml`). |
+
+> 💡 You can combine multiple global flags in a single command, and they always come **before** the Helm subcommand (e.g., `install`, `upgrade`, `list`).
 
 
 # helm repo
@@ -48,6 +74,13 @@ example:
 ```sh  
 helm install nginx bitnami/nginx 
 ```  
+
+## flags  
+
+- `--create-namespace` create the release namespace if not present
+- `--dry-run string[="client"]` simulate an install. If --dry-run is set with no option being specified or as '--dry-run=client', it will not attempt cluster connections. Setting '--dry-run=server' allows attempting cluster connections.  
+- `--set stringArray` set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)  
+
 # helm uninstall
 
 **This command takes a release name and uninstalls the release.**
@@ -89,6 +122,11 @@ To upgrade by replica count (related to chart):
 ```sh
 helm upgrade nginx bitnami/nginx --set "replicaCount=1"  
 ```  
+
+## flags  
+
+- `-f, --values strings` specify values in a YAML file or a URL (can specify multiple)  
+
 # helm rollback
 
 **The first argument of the rollback command is the name of a release, and the second is a revision (version) number. If this argument is omitted or set to 0, it will roll back to the previous release.**
@@ -144,5 +182,27 @@ Usage:
 - `--show-desc`        if set, display the description message of the named release
 - `--show-resources`   if set, display the resources of the named release
 
-to-s : 8->1
-chk : g-flags
+# helm get
+
+This command consists of multiple subcommands which can be used to
+get extended information about the release, including:
+
+- The values used to generate the release
+- The generated manifest file
+- The notes provided by the chart of the release
+- The hooks associated with the release
+- The metadata of the release
+
+Usage:
+```sh  
+  helm get [command]
+```
+## Available Commands:  
+-  `all`         download all information for a named release
+-  `hooks`       download all hooks for a named release
+-  `manifest`    download the manifest for a named release
+-  `metadata`    This command fetches metadata for a given release
+-  `notes`       download the notes for a named release
+-  `values`      download the values file for a named release
+
+to-s : 11->1
