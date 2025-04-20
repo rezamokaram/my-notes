@@ -81,6 +81,11 @@ helm install nginx bitnami/nginx
 - `--dry-run string[="client"]` simulate an install. If --dry-run is set with no option being specified or as '--dry-run=client', it will not attempt cluster connections. Setting '--dry-run=server' allows attempting cluster connections.  
 - `--set stringArray` set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)  
 
+  ***note:*** in case that we need to removing a default value:
+  ```bash
+  helm install my-release my-chart --set someKey="null"
+  ```
+
 # helm uninstall
 
 **This command takes a release name and uninstalls the release.**
