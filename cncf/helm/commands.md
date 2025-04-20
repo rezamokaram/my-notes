@@ -64,7 +64,19 @@ helm repo list
 shows existing repositories that we added using helm repo add
 
 # helm search
-// TODO
+
+Search provides the ability to search for Helm charts in the various places  
+they can be stored including the Artifact Hub and repositories you have added.  
+Use search subcommands to search different locations for charts.  
+
+Usage:
+```sh
+  helm search [command]
+```
+
+**Available Commands:**  
+  `hub` search for charts in the Artifact Hub or your own hub instance  
+  `repo` search repositories for a keyword in charts  
 
 # helm install
 
