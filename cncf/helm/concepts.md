@@ -12,6 +12,16 @@
   - [`charts`](#charts)
     - [How to Add a Dependency (the Right Way)](#how-to-add-a-dependency-the-right-way)
     - [Summary](#summary)
+  - [`templates/`](#templates)
+    - [`templates/_helpers.tpl`](#templates_helperstpl)
+    - [`templates/NOTES.txt`](#templatesnotestxt)
+      - [What Can You Do in `NOTES.txt`?](#what-can-you-do-in-notestxt)
+    - [`templates/tests/`](#templatestests)
+      - [Helm Hook for Tests](#helm-hook-for-tests)
+        - [Example: templates/tests/test-connection.yaml](#example-templatesteststest-connectionyaml)
+        - [How to Run Helm Tests](#how-to-run-helm-tests)
+  - [`README.md`](#readmemd)
+  - [`LICENSE`](#license)
 
 # Values Hierarchy  
 
@@ -296,4 +306,171 @@ This will:
 | Keeps things modular        | Each subchart is independent but can be configured via `values.yaml` |
 | Supports version control    | Pin specific versions to avoid breaking changes |
 
-//TODO: best practice git-ops & templates
+## `templates/`
+
+This is the most important folder — it contains the YAML templates for your Kubernetes resources.
+
+Typical files include:
+
+- `deployment.yaml:` Template for a Kubernetes Deployment.
+- `service.yaml:` Template for a Kubernetes Service.
+- `ingress.yaml:` (optional) Ingress resource.
+- `_helpers.tpl:` Reusable template functions/macros.
+- `NOTES.txt:` Message shown after helm install.
+
+### `templates/_helpers.tpl`
+Used to define reusable template helpers (like functions). Example:
+
+```tpl
+{{- define "mychart.fullname" -}}
+{{ .Release.Name }}-{{ .Chart.Name }}
+{{- end }}
+```
+
+Then used like:
+```yaml
+name: {{ include "mychart.fullname" . }}
+```
+
+
+
+$important-note$ -> ***The files in here are rendered using the values from values.yaml.***
+
+Files That Start with _ (Underscore)
+These files are not rendered directly into Kubernetes manifests.  
+They are used to define reusable template code, such as functions, logic, or text snippets.  
+Helm uses them as helpers, and you include their content in other templates using the include function.  
+
+
+### `templates/NOTES.txt`  
+
+- It's a template file (found in the templates/ directory).  
+- It is not rendered into Kubernetes resources, but instead prints helpful information to the user after helm install or helm upgrade.  
+- It's used to give the user instructions, like how to access the deployed app, next steps, or service URLs.  
+
+Example output you might see:
+```bash
+NOTES:
+1. Get the application URL by running:
+  export POD_NAME=$(kubectl get pods ...)
+```
+  
+Example `NOTES.txt`:  
+
+```gotemplate
+{{- if .Values.service.enabled }}
+1. To access your service, run:
+  kubectl port-forward svc/{{ include "mychart.fullname" . }} 8080:80
+{{- else }}
+The service is disabled in values.yaml.
+{{- end }}
+```
+
+#### What Can You Do in `NOTES.txt`?
+
+- Variables: Access `.Values`, `.Release`, .`Chart`, etc.
+
+- Functions: `include`, `printf`, `indent`, `repeat`, etc.
+    - include "mychart.fullname" . → Uses a helper defined in _helpers.tpl.  
+    - printf → Builds a string (like a port-forward command).  
+    - indent 4 → Adds 4 spaces to the start of each line (pretty formatting).  
+    - quote → Wraps a string in " " safely.  
+    - if → Conditional logic to show the admin password only if it's set.  
+
+Example:  
+```gotemplate
+{{- /*
+This NOTES.txt gives user instructions after deployment
+*/ -}}
+
+{{- $fullname := include "mychart.fullname" . }}
+{{- $port := .Values.service.port }}
+{{- $url := printf "http://%s:%d" $fullname $port }}
+
+1. Your application "{{ $fullname }}" has been deployed.
+
+2. To access it, you can run the following command:
+   {{ printf "kubectl port-forward svc/%s 8080:%d" $fullname $port | indent 4 }}
+
+3. Open your browser and visit:
+   {{ $url | quote }}
+
+{{- if .Values.adminPassword }}
+4. Admin password is:
+   {{ .Values.adminPassword | quote }}
+{{- else }}
+4. No admin password was set. Please check your values.yaml.
+{{- end }}
+```
+
+- Conditionals:  
+```gotemplate
+{{ if .Values.service.enabled }}
+{{ else }}
+{{ end }}
+```
+
+- Loops:  
+```gotemplate
+{{ range .Values.users }}
+User: {{ . }}
+{{ end }}
+```
+
+- String formatting:
+```gotemplate
+{{ printf "App name: %s" .Release.Name }}
+```
+
+### `templates/tests/`  
+- inside, you place Kubernetes Job manifests that act as tests for your chart.  
+- These jobs run after Helm installs or upgrades your chart.  
+- They are triggered using a special Helm hook.  
+
+#### Helm Hook for Tests
+To make a resource a test, add this annotation:  
+```yaml
+annotations:
+  "helm.sh/hook": test
+```  
+
+This tells Helm:  
+*“This is a test job. Run it after installing or upgrading the chart.”*
+
+##### Example: templates/tests/test-connection.yaml  
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "mychart.fullname" . }}-test-connection"
+  annotations:
+    "helm.sh/hook": test
+spec:
+  template:
+    spec:
+      containers:
+        - name: wget
+          image: busybox
+          command: ['wget']
+          args: ['{{ include "mychart.fullname" . }}:{{ .Values.service.port }}']
+      restartPolicy: Never
+```
+
+##### How to Run Helm Tests
+
+Usage:  
+```bash
+helm test <release-name>
+```
+
+```bash
+helm install myapp ./mychart
+helm test myapp
+```
+
+## `README.md`
+-Explains what the Helm chart does, how to use it, and any important notes.  
+
+## `LICENSE`
+- important for legal clarity and sharing the chart openly.  

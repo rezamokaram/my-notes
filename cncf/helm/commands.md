@@ -222,4 +222,4 @@ Usage:
 -  `notes`       download the notes for a named release
 -  `values`      download the values file for a named release
 
-to-s : 11->1
+to-s : 12->1
