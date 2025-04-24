@@ -22,6 +22,10 @@
         - [How to Run Helm Tests](#how-to-run-helm-tests)
   - [`README.md`](#readmemd)
   - [`LICENSE`](#license)
+- [Root Object](#root-object)
+  - [`with` \& `range`](#with--range)
+    - [`with` Example](#with-example)
+    - [`range` Example](#range-example)
 
 # Values Hierarchy  
 
@@ -474,3 +478,72 @@ helm test myapp
 
 ## `LICENSE`
 - important for legal clarity and sharing the chart openly.  
+
+# Root Object  
+
+In Helm charts, the root object refers to the top-level context available within templates, represented by the dot (.). This object encompasses several built-in objects that provide essential information and functionalities for rendering Kubernetes manifests.​
+
+***The root object (.) is a dictionary containing various built-in objects, including:​***
+
+- `.Release`: Information about the release, such as its name, namespace, and revision.
+
+- `.Values`: User-defined values supplied in the values.yaml file or via the command line.
+
+- `.Chart`: Metadata about the chart, including its name and version.
+
+- `.Capabilities`: Information about the capabilities of the Kubernetes cluster.
+
+- `.Files`: Access to non-template files within the chart.​
+
+## `with` & `range`
+When using control structures like `with` or `range`, the context (.) changes to the current item within the block. To access the original root context in such cases, Helm provides the $ variable, which always points to the root context. This is particularly useful when you need to reference top-level objects from within nested scopes. 
+Helm
+
+### `with` Example
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+data:
+  myvalue: "Hello World"
+  {{- $relname := .Release.Name -}}
+  {{- with .Values.favorite }}
+  drink: {{ .drink | default "tea" | quote }}
+  food: {{ .food | upper | quote }}
+  release: {{ $relname }}
+  {{- end }}
+```
+- `{{ .Release.Name }}` accesses the release name from the root context.
+
+- `{{- $relname := .Release.Name -}}` assigns the release name to a variable `$relname` before entering the `with` block.
+
+- Within the with block, `.drink` and `.food` refer to properties under .Values.favorite.
+
+- `{{ $relname }}` accesses the release name using the variable defined earlier, ensuring access to the root context within the nested block.​  
+
+### `range` Example  
+
+If your values.yaml defines a map:  
+```yaml
+env:
+  LOG_LEVEL: debug
+  TIMEOUT: 30
+```  
+  
+You can iterate over the key-value pairs:  
+```yaml
+{{- range $key, $value := .Values.env }}
+- name: {{ $key }}
+  value: "{{ $value }}"
+{{- end }}
+```
+
+This will generate:
+```yaml
+- name: LOG_LEVEL
+  value: "debug"
+- name: TIMEOUT
+  value: "30"
+```
