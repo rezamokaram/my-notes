@@ -21,6 +21,8 @@
   - [flags](#flags-5)
 - [helm get](#helm-get)
   - [Available Commands:](#available-commands)
+- [helm template](#helm-template)
+  - [Usage](#usage)
 
 # global flags
 
@@ -222,4 +224,13 @@ Usage:
 -  `notes`       download the notes for a named release
 -  `values`      download the values file for a named release
 
-to-s : 12->1
+# helm template  
+
+The helm template command renders a Helm chart into raw Kubernetes manifests (YAML files) using your values, but without installing it.  
+
+## Usage  
+```bash  
+helm template [RELEASE_NAME] [CHART] [flags]
+```  
+
+to-s : 14->1

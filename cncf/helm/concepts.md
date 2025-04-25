@@ -22,10 +22,26 @@
         - [How to Run Helm Tests](#how-to-run-helm-tests)
   - [`README.md`](#readmemd)
   - [`LICENSE`](#license)
-- [Root Object](#root-object)
-  - [`with` \& `range`](#with--range)
-    - [`with` Example](#with-example)
-    - [`range` Example](#range-example)
+- [Built-In Objects](#built-in-objects)
+  - [Root Object](#root-object)
+    - [`with` \& `range`](#with--range)
+      - [`with` Example](#with-example)
+      - [`range` Example](#range-example)
+- [Template Development](#template-development)
+  - [action](#action)
+  - [invalid actions](#invalid-actions)
+    - [Examples of Invalid Actions](#examples-of-invalid-actions)
+  - [Quote Function](#quote-function)
+    - [Example](#example-3)
+  - [Pipeline](#pipeline)
+  - [Upper](#upper)
+  - [Lower](#lower)
+  - [Sqoute](#sqoute)
+  - [Default](#default)
+  - [White Spaces](#white-spaces)
+  - [Indent](#indent)
+  - [Nindent](#nindent)
+  - [ToYaml](#toyaml)
 
 # Values Hierarchy  
 
@@ -479,7 +495,24 @@ helm test myapp
 ## `LICENSE`
 - important for legal clarity and sharing the chart openly.  
 
-# Root Object  
+# Built-In Objects  
+
+In Helm, built-in objects are special variables that are available by default in your Helm templates. These objects provide access to useful information about the release, chart, values, files, and more. They are a core part of how Helm templates dynamically render Kubernetes manifests.
+
+
+| Built-in Object   | Description                                                      |
+|-------------------|------------------------------------------------------------------|
+| `.Release`        | Info about the current release (name, namespace, revision, etc.) |
+| `.Chart`          | Info about the chart (name, version, description, etc.)          |
+| `.Values`         | Values passed into the chart (`values.yaml`, `--set`, etc.)      |
+| `.Files`          | Access non-template files in the chart (e.g., config files)      |
+| `.Capabilities`   | Info about the Kubernetes version and API capabilities           |
+| `.Template`       | Info about the template that is currently being rendered         |
+| `.Chart.Name`     | Shorthand to access the chart’s name                             |
+| `.Release.Name`   | The name of the release being installed/upgraded                 |
+
+
+## Root Object  
 
 In Helm charts, the root object refers to the top-level context available within templates, represented by the dot (.). This object encompasses several built-in objects that provide essential information and functionalities for rendering Kubernetes manifests.​
 
@@ -495,11 +528,11 @@ In Helm charts, the root object refers to the top-level context available within
 
 - `.Files`: Access to non-template files within the chart.​
 
-## `with` & `range`
+### `with` & `range`
 When using control structures like `with` or `range`, the context (.) changes to the current item within the block. To access the original root context in such cases, Helm provides the $ variable, which always points to the root context. This is particularly useful when you need to reference top-level objects from within nested scopes. 
 Helm
 
-### `with` Example
+#### `with` Example
 
 ```yaml
 apiVersion: v1
@@ -523,7 +556,7 @@ data:
 
 - `{{ $relname }}` accesses the release name using the variable defined earlier, ensuring access to the root context within the nested block.​  
 
-### `range` Example  
+#### `range` Example  
 
 If your values.yaml defines a map:  
 ```yaml
@@ -546,4 +579,131 @@ This will generate:
   value: "debug"
 - name: TIMEOUT
   value: "30"
+```
+
+# Template Development 
+
+## action
+
+actions are instructions wrapped in `{{ ... }}` — they tell Helm what to do when rendering templates.  
+
+```yaml
+metadata:
+  name: {{ .Release.Name }}
+```
+- `{{ ... }}`: The action block  
+- `.Release.Name`: A built-in object — this will be replaced with the release name  
+
+Other common actions:
+
+- `{{ .Values.someKey }}` – Access values from values.yaml
+
+- `{{ if ... }}`, `{{ range ... }}`, `{{ with ... }}` – Control structures
+
+- `{{ include "template.name" . }}` – Include another template
+
+## invalid actions  
+
+An invalid action is anything that breaks Go templating rules or Helm conventions. These cause template rendering to fail.  
+
+### Examples of Invalid Actions
+
+| Example | Why it’s Invalid |
+|---------|------------------|
+| `{{ .Values }}` alone | Outputs an entire map (not useful, often breaks YAML) |
+| `{{ .Values.someKey` | Missing closing `}}` |
+| `{{ .Release.Name }}` inside a string but unquoted: `name: {{ .Release.Name }}-svc` | May break YAML parsing if the result contains special characters |
+| `{{ include "mytpl" }}` | Missing `.` context parameter |
+| `{{ if }}` | Missing condition |
+
+***$Tip$: Use helm template --debug to see exactly what failed.***
+
+## Quote Function  
+
+```gotemplate
+{{ quote VALUE }}
+```
+
+### Example
+```yaml
+name: {{ .Values.appName }}
+nameQuote: {{ quote .Values.appName }}
+```
+
+output:
+```yaml
+app: my-app
+nameQuote: "my-app"
+```
+
+## Pipeline 
+
+To pass something as input of next function, usage:
+```yaml
+name: {{ .Values.appName | quote }}  
+```  
+
+## Upper
+To make all the characters uppercase, usage:
+```yaml
+name: {{ .Values.appName | quote | upper }}  
+```  
+
+## Lower
+To make all the characters lowercase, usage:
+```yaml
+name: {{ .Values.appName | quote | lower }}  
+```  
+
+## Sqoute
+To put inside two single quotations(''), usage:
+```yaml
+name: {{ .Values.appName | squote }}  
+```  
+
+## Default
+To set default value for any value if it is no provided, usage:  
+```yaml
+replicas: {{ default 2 .Values.ReplicaCount }}
+name: {{ default "my-default-value" .Values.Name | lower }}
+```  
+***$Tip$: in numeric values 0 considered as empty(not provided), so the default value will assigned.***  
+
+## White Spaces
+
+To remove a white space we can use hyphen(`-`), usage:  
+```yaml
+leadingWhiteSpaces: "    {{- .Chart.Name }}    sample"
+trailingWhiteSpaces: "    {{ .Chart.Name -}}    sample"
+leadTrailWhiteSpaces: "    {{- .Chart.Name -}}    sample"
+```  
+
+## Indent  
+
+To put spaces before value, usage:  
+```yaml
+indentName: "  {{- .Chart.Name | indent 4 -}}  "
+```
+
+## Nindent  
+
+To put spaces before value in new line, usage:  
+```yaml
+indentName: "  {{- .Chart.Name | nindent 4 -}}  "
+```
+
+## ToYaml  
+this is a type conversion function.  
+there is a lots of other type convertion funcs in [helm doc](https://helm.sh/docs/chart_template_guide/function_list/) for functions.
+
+Convert list, slice, array, dict, or object to indented yaml, can be used to copy chunks of yaml from any source.  
+
+```yaml
+containers:
+- name: nginx
+  image: sample.com/nginx
+  ports:
+  - containerPort: 80
+  resources:
+  {{- toYaml .Value.resource | nindent 10}}
 ```
