@@ -45,6 +45,11 @@
       - [`with` Example](#with-example)
   - [`range`](#range)
     - [`range` Example](#range-example)
+  - [Variables](#variables)
+    - [Example Of Usage](#example-of-usage)
+  - [Define (named template)](#define-named-template)
+  - [Template (named template)](#template-named-template)
+  - [Include (named template) | pipeline](#include-named-template--pipeline)
 
 # Values Hierarchy  
 
@@ -713,7 +718,8 @@ data:
 
 ## `range`  
 
-Iterates over lists or maps, similar to a for loop.
+Iterates over lists or maps, similar to a for loop.  
+we can use range for lists.
 
 ### `range` Example  
 
@@ -739,4 +745,17 @@ This will generate:
 - name: TIMEOUT
   value: "30"
 ```  
+## Variables  
 
+### Example Of Usage  
+
+```yaml
+{{- $chartname := .Chart.Name }}
+
+# usage 
+name: {{ $chartname }}
+```  
+
+## Define (named template)
+## Template (named template)
+## Include (named template) | pipeline

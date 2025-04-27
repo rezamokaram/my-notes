@@ -233,4 +233,4 @@ The helm template command renders a Helm chart into raw Kubernetes manifests (YA
 helm template [RELEASE_NAME] [CHART] [flags]
 ```  
 
-to-s : 19->1
+to-s : 24->1
