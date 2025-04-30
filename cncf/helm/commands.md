@@ -5,7 +5,8 @@
   - [helm repo list](#helm-repo-list)
   - [helm repo list](#helm-repo-list-1)
 - [helm search](#helm-search)
-- [helm install](#helm-install)
+- [helm install usage](#helm-install-usage)
+  - [helm install example](#helm-install-example)
   - [flags](#flags)
 - [helm uninstall](#helm-uninstall)
   - [flags](#flags-1)
@@ -18,11 +19,16 @@
   - [flags](#flags-4)
 - [helm history](#helm-history)
 - [helm status](#helm-status)
-  - [flags](#flags-5)
+  - [helm status flags](#helm-status-flags)
 - [helm get](#helm-get)
-  - [Available Commands:](#available-commands)
+  - [helm get usage](#helm-get-usage)
+  - [helm get commands](#helm-get-commands)
 - [helm template](#helm-template)
-  - [Usage](#usage)
+  - [helm template usage](#helm-template-usage)
+- [helm package](#helm-package)
+  - [helm package usage](#helm-package-usage)
+  - [helm package example](#helm-package-example)
+  - [Correct Usage](#correct-usage)
 
 # global flags
 
@@ -72,6 +78,7 @@ they can be stored including the Artifact Hub and repositories you have added.
 Use search subcommands to search different locations for charts.  
 
 Usage:
+
 ```sh
   helm search [command]
 ```
@@ -80,11 +87,14 @@ Usage:
   `hub` search for charts in the Artifact Hub or your own hub instance  
   `repo` search repositories for a keyword in charts  
 
-# helm install
+# helm install usage  
 
-Usage: `helm install < release-name > < repo-name-in-your-local/chart-name >`  
+```sh
+helm install < release-name > < repo-name-in-your-local/chart-name >
+```  
 
-example: 
+## helm install example  
+
 ```sh  
 helm install nginx bitnami/nginx 
 ```  
@@ -184,6 +194,7 @@ Usage:
 
 **This command shows the status of a named release.**  
 The status consists of:  
+
 - last deployment time
 - k8s namespace in which the release lives
 - state of the release (can be: unknown, deployed, uninstalled, superseded, failed, uninstalling, pending-install, pending-upgrade or pending-rollback)
@@ -196,7 +207,8 @@ The status consists of:
 Usage:  
   `helm status RELEASE_NAME [flags]`  
 
-## flags  
+## helm status flags  
+
 - `--revision int`     if set, display the status of the named release with revision
 - `--show-desc`        if set, display the description message of the named release
 - `--show-resources`   if set, display the resources of the named release
@@ -212,25 +224,88 @@ get extended information about the release, including:
 - The hooks associated with the release
 - The metadata of the release
 
-Usage:
+## helm get usage
+
 ```sh  
   helm get [command]
 ```
-## Available Commands:  
--  `all`         download all information for a named release
--  `hooks`       download all hooks for a named release
--  `manifest`    download the manifest for a named release
--  `metadata`    This command fetches metadata for a given release
--  `notes`       download the notes for a named release
--  `values`      download the values file for a named release
+
+## helm get commands  
+
+- `all`         download all information for a named release
+- `hooks`       download all hooks for a named release
+- `manifest`    download the manifest for a named release
+- `metadata`    This command fetches metadata for a given release
+- `notes`       download the notes for a named release
+- `values`      download the values file for a named release
 
 # helm template  
 
 The helm template command renders a Helm chart into raw Kubernetes manifests (YAML files) using your values, but without installing it.  
 
-## Usage  
+## helm template usage  
+
 ```bash  
 helm template [RELEASE_NAME] [CHART] [flags]
 ```  
 
-to-s : 24->1
+# helm package
+
+Helm packaging is the process of bundling all the files of a Helm chart into a single `.tgz` archive so it can be shared, versioned, and installed easily. Think of it like creating a ZIP file of your application’s Kubernetes configuration, with metadata and templating.  
+
+## helm package usage  
+
+```sh
+  helm package [CHART_PATH] [...] [flags]
+```
+
+## helm package example
+
+Here’s what a typical chart directory looks like:
+
+```scss
+mychart/
+├── Chart.yaml       # Chart metadata (name, version, etc.)
+├── values.yaml      # Default configuration values
+├── templates/       # Kubernetes manifests with Go templating
+├── charts/          # Subcharts (optional)
+└── README.md        # Optional chart documentation
+```
+
+Use the helm package command:
+
+```sh
+helm package mychart/
+# mychart-1.2.3.tgz <- output
+```
+
+Helm does not automatically assign the version when you run `helm package mychart/`  
+Instead, it uses the version you manually set in the Chart.yaml file inside the chart directory.  
+
+then we can upload it using:  
+
+```sh
+helm repo index . --url https://example.com/charts
+```
+
+then, Upgrade the Release Using the New Package:
+
+```bash
+helm upgrade myrelease ./mychart-1.2.4.tgz
+
+#If you also changed configuration (or want to override something):  
+helm upgrade myrelease ./mychart-1.2.4.tgz -f my-values.yaml
+
+# Or override inline:  
+helm upgrade myrelease ./mychart-1.2.4.tgz --set image.tag=v2
+```
+
+## Correct Usage
+
+| Task               | Command                                                                 |
+|--------------------|-------------------------------------------------------------------------|
+| First install      | `helm install myrelease ./mychart-1.2.3.tgz`                            |
+| Update release     | `helm upgrade myrelease ./mychart-1.2.4.tgz`                            |
+| Delete + reinstall | `helm uninstall myrelease && helm install myrelease ./mychart-1.2.4.tgz` |
+
+to-s : 27 -> 1

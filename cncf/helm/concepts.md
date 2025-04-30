@@ -1,13 +1,14 @@
+
 - [Values Hierarchy](#values-hierarchy)
 - [Helm Chart Structure](#helm-chart-structure)
   - [`.helmignore`](#helmignore)
-    - [Example `.helmignore`:](#example-helmignore)
+    - [Example `.helmignore`](#example-helmignore)
     - [What is “Packaging a Chart”?](#what-is-packaging-a-chart)
-      - [Example:](#example)
+      - [Example](#example)
   - [`Chart.yaml`](#chartyaml)
-    - [Example](#example-1)
+    - [Chart.yaml Example](#chartyaml-example)
   - [`values.yaml`](#valuesyaml)
-    - [Example](#example-2)
+    - [values.yaml Example](#valuesyaml-example)
   - [How it works?](#how-it-works)
   - [`charts`](#charts)
     - [How to Add a Dependency (the Right Way)](#how-to-add-a-dependency-the-right-way)
@@ -29,27 +30,30 @@
   - [invalid actions](#invalid-actions)
     - [Examples of Invalid Actions](#examples-of-invalid-actions)
   - [Quote Function](#quote-function)
-    - [Example](#example-3)
+    - [Quote Function Example](#quote-function-example)
   - [Pipeline](#pipeline)
   - [Upper](#upper)
   - [Lower](#lower)
-  - [Sqoute](#sqoute)
+  - [Squote](#squote)
   - [Default](#default)
   - [White Spaces](#white-spaces)
   - [Indent](#indent)
   - [Nindent](#nindent)
   - [ToYaml](#toyaml)
   - [if / else statement (control flow)](#if--else-statement-control-flow)
-    - [Example](#example-4)
+    - [if / else statement Example](#if--else-statement-example)
   - [`with`](#with)
-      - [`with` Example](#with-example)
+    - [`with` Example](#with-example)
   - [`range`](#range)
     - [`range` Example](#range-example)
   - [Variables](#variables)
     - [Example Of Usage](#example-of-usage)
   - [Define (named template)](#define-named-template)
+    - [Define Example](#define-example)
   - [Template (named template)](#template-named-template)
+    - [Template Example](#template-example)
   - [Include (named template) | pipeline](#include-named-template--pipeline)
+    - [Include Example](#include-example)
 
 # Values Hierarchy  
 
@@ -67,23 +71,26 @@ When installing or upgrading a chart, users can pass a custom values.yaml to ove
 ```bash
 helm install my-app ./my-chart -f custom-values.yaml
 ```
-4. **--set on the command line**
+
+1. **--set on the command line**
 You can override individual values inline:
 
 ```bash
 helm install my-app ./my-chart --set image.tag=1.2.3
 ```
-5. **--set-string, --set-file, etc.**
-Variants of --set for more control over data types or file contents.
 
-6. **Explicit** values.yaml for subcharts (via dependencies[].values in Chart.yaml)
+1. **--set-string, --set-file, etc.**
+  Variants of --set for more control over data types or file contents.
+
+1. **Explicit** values.yaml for subcharts (via dependencies[].values in Chart.yaml)
 This lets a parent chart define values for its subcharts.  
 
 # Helm Chart Structure  
 
 Helm charts are a way to define, install, and manage Kubernetes applications. A Helm chart is a collection of files that describe a related set of Kubernetes resources.  
 
-Here’s a breakdown of the basic structure of a Helm chart:   
+Here’s a breakdown of the basic structure of a Helm chart:
+
 ```scss
 my-chart/
 │
@@ -104,7 +111,8 @@ my-chart/
 
 When you run `helm package`, Helm reads your chart directory and creates a `.tgz` archive. The `.helmignore` file makes sure that unnecessary files (like .git, local dev scripts, test data, etc.) don’t end up in that archive.  
 
-### Example `.helmignore`:
+### Example `.helmignore`
+
 ```sh
 # Ignore all .md files
 *.md
@@ -129,11 +137,14 @@ When you **package a chart**, you create a `.tgz` (tarball) archive of your Helm
 - Versioning your chart
 - Sharing it with your team or across environments
 
-#### Example:
+#### Example
+
 ```bash
 helm package my-chart
 ```  
+
 If your my-chart/ directory looks like this:
+
 ```scss
 my-chart/
 ├── Chart.yaml
@@ -147,12 +158,14 @@ After running `helm package my-chart`, Helm will output something like:
 ```sh
 Successfully packaged chart and saved it to: ./my-chart-0.1.0.tgz
 ```
+
 Only files not ignored by `.helmignore` will be included in `my-chart-0.1.0.tgz`.  
 
 ***Tip:***
 `.helmignore` = cleaner packages, faster installs, smaller uploads, less clutter.
 
 Then you can install the chart directly from the .tgz file:  
+
 ```sh
 helm install my-release ./my-chart-0.1.0.tgz
 # or
@@ -165,11 +178,14 @@ Example: GitHub Pages as a Chart Repo
 
 1. Move .tgz to a directory (like docs/charts/)  
 2. Run:  
+
     ```sh
     helm repo index docs/charts --url https://yourname.github.io/repo/charts
     ```
+
 3. Push it to GitHub
 4. Add it as a repo:  
+
     ```sh
     helm repo add myrepo https://yourname.github.io/repo/charts
     helm repo update
@@ -182,13 +198,15 @@ Example: GitHub Pages as a Chart Repo
 It holds metadata about your chart—basically the "package manifest" for your Kubernetes application.  
 
 It defines key information like:  
+
 - The name and version of the chart  
 - A description of what the chart does  
 - The app version it’s deploying  
 - Dependencies on other charts  
 - Maintainers and license info  
 
-### Example  
+### Chart.yaml Example  
+
 ```yaml
 apiVersion: v2
 name: my-app
@@ -208,6 +226,7 @@ appVersion: "1.0.3"
 | `appVersion`  | ❌       | The version of the app this chart deploys. Purely informational. |
 
 Optional but Useful Fields:  
+
 ```yaml
 maintainers:
   - name: Jane Doe
@@ -251,7 +270,7 @@ Think of it as the "settings file" for your chart. It makes your chart flexible,
 - Environment variables
 - Custom app settings
 
-### Example  
+### values.yaml Example
 
 ```yaml
 replicaCount: 2
@@ -281,6 +300,7 @@ env:
 ## How it works?
 
 In your `templates/` (e.g., `deployment.yaml`), you use ***Go templating*** to reference values from `values.yaml`.  
+
 ```sh
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -290,6 +310,7 @@ spec:
 ```
 
 ***Tips***
+
 - Keep your values.yaml clean and well-commented—it's your chart's API.
 - Use nested structures for better organization.
 - Use default in templates to avoid errors when a value isn’t set.
@@ -310,18 +331,24 @@ my-app/
 ```
 
 ### How to Add a Dependency (the Right Way)
+
 Instead of manually downloading `.tgz` files into `charts/`, you typically declare dependencies in `Chart.yaml`:  
+
 ```yaml
 dependencies:
   - name: redis
     version: "17.3.11"
     repository: "https://charts.bitnami.com/bitnami"
 ```
+
 Then run:  
+
 ```sh
 helm dependency update
 ```
+
 This will:  
+
 - Download the Redis chart from the Bitnami repo
 - Save it as a .tgz file inside the charts/ folder  
 
@@ -347,6 +374,7 @@ Typical files include:
 - `NOTES.txt:` Message shown after helm install.
 
 ### `templates/_helpers.tpl`
+
 Used to define reusable template helpers (like functions). Example:
 
 ```tpl
@@ -356,11 +384,10 @@ Used to define reusable template helpers (like functions). Example:
 ```
 
 Then used like:
+
 ```yaml
 name: {{ include "mychart.fullname" . }}
 ```
-
-
 
 $important-note$ -> ***The files in here are rendered using the values from values.yaml.***
 
@@ -369,7 +396,6 @@ These files are not rendered directly into Kubernetes manifests.
 They are used to define reusable template code, such as functions, logic, or text snippets.  
 Helm uses them as helpers, and you include their content in other templates using the include function.  
 
-
 ### `templates/NOTES.txt`  
 
 - It's a template file (found in the templates/ directory).  
@@ -377,6 +403,7 @@ Helm uses them as helpers, and you include their content in other templates usin
 - It's used to give the user instructions, like how to access the deployed app, next steps, or service URLs.  
 
 Example output you might see:
+
 ```bash
 NOTES:
 1. Get the application URL by running:
@@ -399,13 +426,14 @@ The service is disabled in values.yaml.
 - Variables: Access `.Values`, `.Release`, .`Chart`, etc.
 
 - Functions: `include`, `printf`, `indent`, `repeat`, etc.
-    - include "mychart.fullname" . → Uses a helper defined in _helpers.tpl.  
-    - printf → Builds a string (like a port-forward command).  
-    - indent 4 → Adds 4 spaces to the start of each line (pretty formatting).  
-    - quote → Wraps a string in " " safely.  
-    - if → Conditional logic to show the admin password only if it's set.  
+  - include "mychart.fullname" . → Uses a helper defined in _helpers.tpl.  
+  - printf → Builds a string (like a port-forward command).  
+  - indent 4 → Adds 4 spaces to the start of each line (pretty formatting).  
+  - quote → Wraps a string in " " safely.  
+  - if → Conditional logic to show the admin password only if it's set.  
 
 Example:  
+
 ```gotemplate
 {{- /*
 This NOTES.txt gives user instructions after deployment
@@ -432,6 +460,7 @@ This NOTES.txt gives user instructions after deployment
 ```
 
 - Conditionals:  
+
 ```gotemplate
 {{ if .Values.service.enabled }}
 {{ else }}
@@ -439,6 +468,7 @@ This NOTES.txt gives user instructions after deployment
 ```
 
 - Loops:  
+
 ```gotemplate
 {{ range .Values.users }}
 User: {{ . }}
@@ -446,17 +476,21 @@ User: {{ . }}
 ```
 
 - String formatting:
+
 ```gotemplate
 {{ printf "App name: %s" .Release.Name }}
 ```
 
 ### `templates/tests/`  
+
 - inside, you place Kubernetes Job manifests that act as tests for your chart.  
 - These jobs run after Helm installs or upgrades your chart.  
 - They are triggered using a special Helm hook.  
 
 #### Helm Hook for Tests
+
 To make a resource a test, add this annotation:  
+
 ```yaml
 annotations:
   "helm.sh/hook": test
@@ -488,6 +522,7 @@ spec:
 ##### How to Run Helm Tests
 
 Usage:  
+
 ```bash
 helm test <release-name>
 ```
@@ -498,15 +533,16 @@ helm test myapp
 ```
 
 ## `README.md`
+
 -Explains what the Helm chart does, how to use it, and any important notes.  
 
 ## `LICENSE`
+
 - important for legal clarity and sharing the chart openly.  
 
 # Built-In Objects  
 
 In Helm, built-in objects are special variables that are available by default in your Helm templates. These objects provide access to useful information about the release, chart, values, files, and more. They are a core part of how Helm templates dynamically render Kubernetes manifests.
-
 
 | Built-in Object   | Description                                                      |
 |-------------------|------------------------------------------------------------------|
@@ -518,7 +554,6 @@ In Helm, built-in objects are special variables that are available by default in
 | `.Template`       | Info about the template that is currently being rendered         |
 | `.Chart.Name`     | Shorthand to access the chart’s name                             |
 | `.Release.Name`   | The name of the release being installed/upgraded                 |
-
 
 ## Root Object  
 
@@ -536,9 +571,7 @@ In Helm charts, the root object refers to the top-level context available within
 
 - `.Files`: Access to non-template files within the chart.​
 
-
-
-# Template Development 
+# Template Development
 
 ## action
 
@@ -548,6 +581,7 @@ actions are instructions wrapped in `{{ ... }}` — they tell Helm what to do wh
 metadata:
   name: {{ .Release.Name }}
 ```
+
 - `{{ ... }}`: The action block  
 - `.Release.Name`: A built-in object — this will be replaced with the release name  
 
@@ -581,54 +615,67 @@ An invalid action is anything that breaks Go templating rules or Helm convention
 {{ quote VALUE }}
 ```
 
-### Example
+### Quote Function Example
+
 ```yaml
 name: {{ .Values.appName }}
 nameQuote: {{ quote .Values.appName }}
 ```
 
 output:
+
 ```yaml
 app: my-app
 nameQuote: "my-app"
 ```
 
-## Pipeline 
+## Pipeline
 
 To pass something as input of next function, usage:
+
 ```yaml
 name: {{ .Values.appName | quote }}  
 ```  
 
 ## Upper
+
 To make all the characters uppercase, usage:
+
 ```yaml
 name: {{ .Values.appName | quote | upper }}  
 ```  
 
 ## Lower
+
 To make all the characters lowercase, usage:
+
 ```yaml
 name: {{ .Values.appName | quote | lower }}  
 ```  
 
-## Sqoute
+## Squote
+
 To put inside two single quotations(''), usage:
+
 ```yaml
 name: {{ .Values.appName | squote }}  
 ```  
 
 ## Default
+
 To set default value for any value if it is no provided, usage:  
+
 ```yaml
 replicas: {{ default 2 .Values.ReplicaCount }}
 name: {{ default "my-default-value" .Values.Name | lower }}
 ```  
+
 ***$Tip$: in numeric values 0 considered as empty(not provided), so the default value will assigned.***  
 
 ## White Spaces
 
 To remove a white space we can use hyphen(`-`), usage:  
+
 ```yaml
 leadingWhiteSpaces: "    {{- .Chart.Name }}    sample"
 trailingWhiteSpaces: "    {{ .Chart.Name -}}    sample"
@@ -638,6 +685,7 @@ leadTrailWhiteSpaces: "    {{- .Chart.Name -}}    sample"
 ## Indent  
 
 To put spaces before value, usage:  
+
 ```yaml
 indentName: "  {{- .Chart.Name | indent 4 -}}  "
 ```
@@ -645,13 +693,15 @@ indentName: "  {{- .Chart.Name | indent 4 -}}  "
 ## Nindent  
 
 To put spaces before value in new line, usage:  
+
 ```yaml
 indentName: "  {{- .Chart.Name | nindent 4 -}}  "
 ```
 
 ## ToYaml  
+
 this is a type conversion function.  
-there is a lots of other type convertion funcs in [helm doc](https://helm.sh/docs/chart_template_guide/function_list/) for functions.
+there is a lots of other type conversion funcs in [helm doc](https://helm.sh/docs/chart_template_guide/function_list/) for functions.
 
 Convert list, slice, array, dict, or object to indented yaml, can be used to copy chunks of yaml from any source.  
 
@@ -667,7 +717,7 @@ containers:
 
 ## if / else statement (control flow)  
 
-### Example  
+### if / else statement Example  
 
 ```yaml
 spec:
@@ -690,7 +740,7 @@ Limits (change) the scope of a block to a specific object, avoiding repetitive r
   
 When using control structures like `with` or `range`, the context (.) changes to the current item within the block. To access the original root context in such cases, Helm provides the $ variable, which always points to the root context. This is particularly useful when you need to reference top-level objects from within nested scopes.  
 
-#### `with` Example
+### `with` Example
 
 ```yaml
 apiVersion: v1
@@ -706,6 +756,7 @@ data:
   release: {{ $relname }}
   {{- end }}
 ```
+
 - `{{ .Release.Name }}` accesses the release name from the root context.
 
 - `{{- $relname := .Release.Name -}}` assigns the release name to a variable `$relname` before entering the `with` block.
@@ -724,6 +775,7 @@ we can use range for lists.
 ### `range` Example  
 
 If your values.yaml defines a map:  
+
 ```yaml
 env:
   LOG_LEVEL: debug
@@ -731,6 +783,7 @@ env:
 ```  
   
 You can iterate over the key-value pairs:  
+
 ```yaml
 {{- range $key, $value := .Values.env }}
 - name: {{ $key }}
@@ -739,12 +792,14 @@ You can iterate over the key-value pairs:
 ```
 
 This will generate:
+
 ```yaml
 - name: LOG_LEVEL
   value: "debug"
 - name: TIMEOUT
   value: "30"
 ```  
+
 ## Variables  
 
 ### Example Of Usage  
@@ -757,5 +812,45 @@ name: {{ $chartname }}
 ```  
 
 ## Define (named template)
+
+In Go's `text/template` or `html/template` package, a named template is a way to define a reusable block of template logic with a specific name that can be invoked later — very similar to what you see in Helm templates (since Helm uses Go templates under the hood).  
+
+### Define Example  
+
+```yaml
+{{- define "mychart.labels" }}
+app: {{ .Chart.Name }}
+chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+release: {{ .Release.Name }}
+heritage: {{ .Release.Service }}
+{{- end }}
+```
+
 ## Template (named template)
+
+
+### Template Example
+
+```yaml
+# This writes output directly
+metadata:
+  name: {{ template "mychart.fullname" . }}
+```
+
 ## Include (named template) | pipeline
+
+### Include Example
+
+```yaml
+metadata:
+  labels:
+    {{- include "mychart.labels" . | nindent 4 }}
+```
+
+| Term                  | Description |
+|-----------------------|-------------|
+| `define`              | Declares a named template block (used with `include` or `template`) |
+| `include`             | Calls a named template and returns its output as a string (can be piped) |
+| `template`            | Renders a named template inline (writes output directly) |
+
+***$Tip$*** named template can used inside another named template
