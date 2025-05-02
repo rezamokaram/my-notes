@@ -1,22 +1,24 @@
 
+# Helm Commands
+
+- [Helm Commands](#helm-commands)
 - [global flags](#global-flags)
 - [helm repo](#helm-repo)
   - [helm repo add](#helm-repo-add)
   - [helm repo list](#helm-repo-list)
-  - [helm repo list](#helm-repo-list-1)
 - [helm search](#helm-search)
 - [helm install usage](#helm-install-usage)
   - [helm install example](#helm-install-example)
   - [flags](#flags)
 - [helm uninstall](#helm-uninstall)
-  - [flags](#flags-1)
+  - [helm uninstall flags](#helm-uninstall-flags)
 - [helm create](#helm-create)
 - [helm upgrade](#helm-upgrade)
-  - [flags](#flags-2)
+  - [helm upgrade flags](#helm-upgrade-flags)
 - [helm rollback](#helm-rollback)
-  - [flags](#flags-3)
+  - [helm rollback flags](#helm-rollback-flags)
 - [helm list](#helm-list)
-  - [flags](#flags-4)
+  - [helm list flags](#helm-list-flags)
 - [helm history](#helm-history)
 - [helm status](#helm-status)
   - [helm status flags](#helm-status-flags)
@@ -28,7 +30,7 @@
 - [helm package](#helm-package)
   - [helm package usage](#helm-package-usage)
   - [helm package example](#helm-package-example)
-  - [Correct Usage](#correct-usage)
+  - [Package Correct Usage](#package-correct-usage)
 
 # global flags
 
@@ -51,7 +53,6 @@ These flags can be used with any `helm` command to control Helm's behavior globa
 
 > 💡 You can combine multiple global flags in a single command, and they always come **before** the Helm subcommand (e.g., `install`, `upgrade`, `list`).
 
-
 # helm repo
 
 ## helm repo add  
@@ -63,13 +64,10 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 ## helm repo list  
   
 To show the added repositories:  
+
 ```sh
 helm repo list
 ```
-
-## helm repo list
-
-shows existing repositories that we added using helm repo add
 
 # helm search
 
@@ -106,6 +104,7 @@ helm install nginx bitnami/nginx
 - `--set stringArray` set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)  
 
   ***note:*** in case that we need to removing a default value:
+
   ```bash
   helm install my-release my-chart --set someKey="null"
   ```
@@ -115,11 +114,12 @@ helm install nginx bitnami/nginx
 **This command takes a release name and uninstalls the release.**
 
 Usage:
+
 ```sh
 helm uninstall RELEASE_NAME [...] [flags]
 ```
 
-## flags
+## helm uninstall flags
 
 - `--keep-history` remove all associated resources and mark the release as deleted, but retain the release history
 
@@ -140,19 +140,24 @@ a packaged chart, or a fully qualified URL. For chart references, the latest
 version will be specified unless the '--version' flag is set.  
 
 To upgrade by image tag (related to chart):
+
 ```sh
 helm upgrade nginx bitnami/nginx --set "image.tag=1.26.0"
 ```  
+
 To upgrade by chart version (related to chart):
+
 ```sh
 helm upgrade nginx bitnami/nginx --version 16.0.0  
 ```
+
 To upgrade by replica count (related to chart):
+
 ```sh
 helm upgrade nginx bitnami/nginx --set "replicaCount=1"  
 ```  
 
-## flags  
+## helm upgrade flags  
 
 - `-f, --values strings` specify values in a YAML file or a URL (can specify multiple)  
 
@@ -161,22 +166,22 @@ helm upgrade nginx bitnami/nginx --set "replicaCount=1"
 **The first argument of the rollback command is the name of a release, and the second is a revision (version) number. If this argument is omitted or set to 0, it will roll back to the previous release.**
 
 Usage:
+
 ```sh
 helm rollback <RELEASE> [REVISION] [flags]
 ```
 
-## flags
+## helm rollback flags
 
 - `--cleanup-on-fail` allow deletion of new resources created in this rollback when rollback fails
 - `--dry-run` simulate a rollback
 - `--force` force resource update through delete/recreate if needed
 
-
 # helm list
 
 **This command lists all of the releases for a specified namespace.**  
 
-## flags
+## helm list flags
 
 - `--output format`        prints the output in the specified format. Allowed values: table, json, yaml (default table)  
 - `--superseded` show superseded releases  
@@ -300,7 +305,7 @@ helm upgrade myrelease ./mychart-1.2.4.tgz -f my-values.yaml
 helm upgrade myrelease ./mychart-1.2.4.tgz --set image.tag=v2
 ```
 
-## Correct Usage
+## Package Correct Usage
 
 | Task               | Command                                                                 |
 |--------------------|-------------------------------------------------------------------------|

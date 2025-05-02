@@ -1,4 +1,7 @@
 
+# Helm Concepts
+
+- [Helm Concepts](#helm-concepts)
 - [Values Hierarchy](#values-hierarchy)
 - [Helm Chart Structure](#helm-chart-structure)
   - [`.helmignore`](#helmignore)
@@ -54,6 +57,14 @@
     - [Template Example](#template-example)
   - [Include (named template) | pipeline](#include-named-template--pipeline)
     - [Include Example](#include-example)
+  - [Dependencies](#dependencies)
+    - [Types of Dependencies](#types-of-dependencies)
+    - [Dependencies Example](#dependencies-example)
+    - [Local Dependencies Example](#local-dependencies-example)
+    - [Chart.lock](#chartlock)
+      - [Purpose of Chart.lock](#purpose-of-chartlock)
+    - [Dependencies Common Pitfalls](#dependencies-common-pitfalls)
+    - [Dependencies Key Takeaways](#dependencies-key-takeaways)
 
 # Values Hierarchy  
 
@@ -828,7 +839,6 @@ heritage: {{ .Release.Service }}
 
 ## Template (named template)
 
-
 ### Template Example
 
 ```yaml
@@ -854,3 +864,95 @@ metadata:
 | `template`            | Renders a named template inline (writes output directly) |
 
 ***$Tip$*** named template can used inside another named template
+
+## Dependencies  
+
+Dependencies are external Helm charts that your parent chart relies on (e.g., databases, Redis, or shared libraries). They are defined in:
+
+- `Chart.yaml`: Under the `dependencies` field.
+- `charts/` directory: Where downloaded/subcharts are stored.
+
+### Types of Dependencies
+
+| Type | Description |
+|------|-------------|
+| Subcharts | Charts stored locally in the charts/ directory. |
+| External | Charts fetched from repositories (e.g., Bitnami, Artifact Hub). |
+
+### Dependencies Example  
+
+```yaml
+# Parent Chart.yaml
+dependencies:
+  - name: postgresql
+    version: "12.0.0"
+    repository: "https://charts.bitnami.com/bitnami"
+```
+
+then:
+
+```sh
+helm install myapp ./mychart
+# This generates a Chart.lock
+helm install myapp ./mychart
+```
+
+### Local Dependencies Example  
+
+Directory Structure:
+
+```bash
+my-parent-chart/
+├── Chart.yaml          # Parent chart (declares dependency on local subchart)
+├── values.yaml         # Parent values (can override subchart values)
+├── charts/             # Local subcharts (manually placed here)
+│   └── my-subchart/    # Local subchart
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+│           └── deployment.yaml
+└── templates/          # Parent chart templates
+    └── NOTES.txt
+```
+
+then the chart will be like:
+
+```yaml
+apiVersion: v2
+name: my-parent-chart
+description: A chart with a local subchart dependency
+version: 0.1.0
+dependencies:
+  - name: my-subchart
+    version: "0.1.0"               # Must match the subchart's version
+    repository: "file://./charts/my-subchart"  # Local path
+    condition: my-subchart.enabled  # Optional: Enable/disable via parent values
+```
+
+### Chart.lock
+
+The Chart.lock file is an auto-generated dependency manifest that locks the exact versions of subcharts or external dependencies used in a Helm chart. It ensures reproducible deployments by freezing dependency versions.
+
+#### Purpose of Chart.lock
+
+- **Version Pinning**: Records the precise versions of dependencies resolved during helm dependency update.
+
+- **Reproducibility**: Ensures the same chart versions are used across environments (dev, staging, prod).
+
+- **Consistency**: Prevents unexpected updates when sharing charts with others.  
+
+### Dependencies Common Pitfalls
+
+- **Version Conflicts**: Ensure dependency versions are compatible.
+
+- **Broken Repos**: Verify repository URLs with helm repo list.
+
+- **Orphaned Files**: Manually delete charts/ if dependencies change.  
+
+### Dependencies Key Takeaways
+
+- `Reusability`: Share common services (DBs, caches) across charts.
+
+- `Control`: Enable/disable dependencies via values.yaml.
+
+- `Isolation`: Subcharts can be tested independently.
