@@ -65,6 +65,17 @@
       - [Purpose of Chart.lock](#purpose-of-chartlock)
     - [Dependencies Common Pitfalls](#dependencies-common-pitfalls)
     - [Dependencies Key Takeaways](#dependencies-key-takeaways)
+  - [helm dependencies alias](#helm-dependencies-alias)
+    - [alias features](#alias-features)
+    - [alias features Example](#alias-features-example)
+    - [How to Reference Aliased Dependencies](#how-to-reference-aliased-dependencies)
+  - [helm dependencies condition](#helm-dependencies-condition)
+    - [helm dependencies condition Example](#helm-dependencies-condition-example)
+  - [helm chart tags](#helm-chart-tags)
+    - [Purpose Of Tags In Helm](#purpose-of-tags-in-helm)
+    - [Tags Usage Example](#tags-usage-example)
+    - [Tags Key Rules](#tags-key-rules)
+    - [how to override subchart values from parent chart](#how-to-override-subchart-values-from-parent-chart)
 
 # Values Hierarchy  
 
@@ -956,3 +967,152 @@ The Chart.lock file is an auto-generated dependency manifest that locks the exac
 - `Control`: Enable/disable dependencies via values.yaml.
 
 - `Isolation`: Subcharts can be tested independently.
+
+## helm dependencies alias
+
+In Helm, when managing complex charts, you often have dependencies—other charts that your main chart relies on. Sometimes, you might want to include multiple instances of the same dependency or give dependencies alternative names within your chart. This is where dependencies aliasing comes into play.
+
+Alias in Helm dependencies allows you to specify an alternative name for a dependency chart within your parent chart's requirements.yaml (Helm v2) or Chart.yaml (Helm v3). This is particularly useful when:
+
+- You want to include multiple instances of the same dependency (e.g., deploying two different Redis instances).
+- You want to differentiate between multiple dependencies of the same chart.
+- You want to avoid naming conflicts.
+
+### alias features
+
+- Alias is used to assign a custom name to a dependency chart.
+- It allows multiple instances of the same dependency or better organization.
+- You specify alias alongside the dependency in Chart.yaml.
+- You reference the alias in your templates and values.
+
+### alias features Example
+
+```yaml
+dependencies:
+  - name: redis
+    version: 14.8.0
+    repository: "https://charts.bitnami.com/bitnami"
+    alias: redis-primary
+  - name: redis
+    version: 14.8.0
+    repository: "https://charts.bitnami.com/bitnami"
+    alias: redis-secondary
+```
+
+### How to Reference Aliased Dependencies
+
+Once you've set aliases, you can refer to them in your Helm templates using the alias name:
+
+```yaml
+# Example in a deployment.yaml template
+containers:
+  - name: redis-primary
+    image: {{ .Values.redis-primary.image }}
+  - name: redis-secondary
+    image: {{ .Values.redis-secondary.image }}
+```
+
+And in your values.yaml, you might specify:
+
+```yaml
+redis-primary:
+  image: redis:6.0
+redis-secondary:
+  image: redis:6.2
+```
+
+## helm dependencies condition
+
+When defining dependencies in your Helm chart, you specify them in the Chart.yaml under the dependencies section. Each dependency can have a condition field which controls whether that subchart is enabled or disabled during deployment.
+
+- The condition is a string that points to a value in your Helm chart's values.yaml.
+- If the value at this path evaluates to true, the dependency is enabled (installed).
+- If it evaluates to false, the dependency is skipped (not installed).
+
+### helm dependencies condition Example
+
+Suppose you have a dependency like this in your Chart.yaml:
+
+```yaml
+dependencies:
+  - name: mysubchart
+    version: 1.2.3
+    repository: "https://example.com/charts"
+    condition: mysubchart.enabled
+```
+
+In your values.yaml, you'd then have:
+
+```yaml
+mysubchart:
+  enabled: true
+```
+
+## helm chart tags
+
+tags are used primarily within Helm Chart's values.yaml or templates to control the inclusion or configuration of resources based on certain conditions. They help you manage different deployment scenarios, environments, or feature toggles.
+
+### Purpose Of Tags In Helm
+
+- **Conditional resource inclusion**: Tags allow you to specify whether certain parts of the chart should be deployed.
+- **Feature toggles**: Enable or disable features based on tags.
+- **Customization**: Customize chart behavior for different environments or use cases.
+
+### Tags Usage Example
+
+```yaml
+dependencies:
+  - name: postgresql
+    version: "12.1.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+    tags:
+      - database
+      - backend
+```
+
+then, Enable/disable tags via --set when installing:
+
+```bash
+helm install myapp . --set tags.database=true --set tags.frontend=false
+```
+
+### Tags Key Rules
+
+1. Default Behavior: If no tag is specified, Helm installs all dependencies (unless disabled by condition).
+
+1. Tag Precedence:
+
+    - If any tag in a dependency is true, the dependency is enabled.
+    - Example: redis above is enabled if either database or cache is true.
+
+1. Combining with condition:
+
+    - Tags are evaluated before condition.
+    - If a tag disables a dependency, the condition is ignored.
+
+### how to override subchart values from parent chart
+
+1. Parent `Chart.yaml`:
+
+    ```yaml
+    dependencies:
+      - name: redis
+        version: "16.0.0"
+        repository: "https://charts.bitnami.com/bitnami"
+    ```
+
+1. Parent `values.yaml`:
+
+    ```yaml
+    redis:
+      architecture: "standalone"  # Overrides default (replication)
+      auth:
+        password: "mypassword"
+    ```
+
+1. Install with CLI overrides:
+
+    ```yaml
+    helm install my-app . --set redis.auth.password="newpass"
+    ```

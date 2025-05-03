@@ -313,4 +313,4 @@ helm upgrade myrelease ./mychart-1.2.4.tgz --set image.tag=v2
 | Update release     | `helm upgrade myrelease ./mychart-1.2.4.tgz`                            |
 | Delete + reinstall | `helm uninstall myrelease && helm install myrelease ./mychart-1.2.4.tgz` |
 
-to-s : 27 -> 1
+to-s : 33 -> 1
