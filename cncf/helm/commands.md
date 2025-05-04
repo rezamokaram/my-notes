@@ -31,6 +31,7 @@
   - [helm package usage](#helm-package-usage)
   - [helm package example](#helm-package-example)
   - [Package Correct Usage](#package-correct-usage)
+- [helm plugin](#helm-plugin)
 
 # global flags
 
@@ -313,4 +314,6 @@ helm upgrade myrelease ./mychart-1.2.4.tgz --set image.tag=v2
 | Update release     | `helm upgrade myrelease ./mychart-1.2.4.tgz`                            |
 | Delete + reinstall | `helm uninstall myrelease && helm install myrelease ./mychart-1.2.4.tgz` |
 
-to-s : 33 -> 1
+# helm plugin
+
+to-s : 39 -> 1

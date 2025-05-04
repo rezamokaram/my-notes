@@ -76,6 +76,11 @@
     - [Tags Usage Example](#tags-usage-example)
     - [Tags Key Rules](#tags-key-rules)
     - [how to override subchart values from parent chart](#how-to-override-subchart-values-from-parent-chart)
+  - [Global variables](#global-variables)
+    - [Key Points](#key-points)
+    - [Global Variables Example](#global-variables-example)
+  - [implicit and Explicit in values](#implicit-and-explicit-in-values)
+- [Helm Starters Chart](#helm-starters-chart)
 
 # Values Hierarchy  
 
@@ -1116,3 +1121,64 @@ helm install myapp . --set tags.database=true --set tags.frontend=false
     ```yaml
     helm install my-app . --set redis.auth.password="newpass"
     ```
+
+## Global variables  
+
+Global variables can be overridden by values set in the `values.yaml` of subcharts. However, if you want to override the global value for a specific chart (or subchart), you can specify that override directly.
+
+### Key Points
+
+1. Definition: You define global variables inside the `values.yaml` file under the global key.
+
+1. Access: To access global variables in your templates, use the global prefix (e.g., {{ .Values.global.VARIABLE }}).
+
+1. Priority: Local values (defined in subcharts) can override global variables, but global variables can be accessed universally.
+
+1. Inheritance: Subcharts can use global variables, which are automatically inherited from the parent chart.
+
+### Global Variables Example
+
+```yaml
+# values.yaml (Parent chart)
+global:
+  image:
+    tag: "v1.0.0"
+
+# Subchart 1 (app)
+app:
+  image:
+    tag: "{{ .Values.global.image.tag }}"  # Using global value
+
+# Subchart 2 (frontend)
+frontend:
+  image:
+    tag: "{{ .Values.global.image.tag }}"  # Using global value
+```
+
+Here's a concrete example of a `deployment.yaml` template in Helm that uses global variables:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: {{ .Values.replicas | default 3 }}
+  template:
+    spec:
+      containers:
+        - name: my-container
+          image: "{{ .Values.global.image.repository }}:{{ .Values.global.image.tag }}"
+          imagePullPolicy: "{{ .Values.global.image.pullPolicy }}"
+```
+
+## implicit and Explicit in values
+
+- Explicit values are those that are directly defined or overridden by the user, making their source and intent clear.
+- Implicit values are either default values provided by the chart developer, built-in Helm variables, or outcomes of the template logic, which are used automatically unless explicitly changed by the user.
+
+# Helm Starters Chart
+
+A Helm starter chart is essentially a basic, often minimal, Helm chart structure that provides a starting point for developers to create their own custom Helm charts. Instead of beginning with an empty directory, a starter chart offers pre-configured files and directories with some common elements already in place.  
+
+Think of it like a template or a scaffolding tool specifically for Helm charts. It helps you quickly set up the fundamental structure and potentially some basic resource definitions, allowing you to focus on the specifics of your application deployment.
