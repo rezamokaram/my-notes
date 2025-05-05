@@ -81,6 +81,22 @@
     - [Global Variables Example](#global-variables-example)
   - [implicit and Explicit in values](#implicit-and-explicit-in-values)
 - [Helm Starters Chart](#helm-starters-chart)
+  - [Release Lifecycle](#release-lifecycle)
+  - [Helm Hooks](#helm-hooks)
+    - [How They Work](#how-they-work)
+      - [Common Hook Annotations](#common-hook-annotations)
+      - [Other Useful Hook Annotations](#other-useful-hook-annotations)
+      - [Common Use Cases for Helm Hooks](#common-use-cases-for-helm-hooks)
+      - [Helm Hook Example](#helm-hook-example)
+  - [Helm Test](#helm-test)
+    - [Helm Test Example](#helm-test-example)
+  - [Helm Resource Policies Explained](#helm-resource-policies-explained)
+  - [helm sign and verify charts](#helm-sign-and-verify-charts)
+    - [Toolset](#toolset)
+  - [helm repository host on gitlab](#helm-repository-host-on-gitlab)
+  - [artifact hub](#artifact-hub)
+  - [validate values by json](#validate-values-by-json)
+  - [use oci registry](#use-oci-registry)
 
 # Values Hierarchy  
 
@@ -1182,3 +1198,234 @@ spec:
 A Helm starter chart is essentially a basic, often minimal, Helm chart structure that provides a starting point for developers to create their own custom Helm charts. Instead of beginning with an empty directory, a starter chart offers pre-configured files and directories with some common elements already in place.  
 
 Think of it like a template or a scaffolding tool specifically for Helm charts. It helps you quickly set up the fundamental structure and potentially some basic resource definitions, allowing you to focus on the specifics of your application deployment.
+
+## Release Lifecycle
+
+- ***Chart:*** A package containing all the necessary resource definitions (templates), metadata, and configuration files to deploy an application on Kubernetes.
+
+- ***Release:*** A specific instance of a chart running in a Kubernetes cluster. A single chart can have multiple releases.
+
+- ***Revision:*** An incremental version of a release, capturing the state of the deployed resources at a specific point in time.
+
+- ***Values:*** Configuration parameters provided during installation or upgrade that are used to render the chart's templates.
+
+- ***Hooks:*** Special lifecycle events within a release that allow chart developers to execute specific actions at certain points (e.g., pre-install, post-upgrade, pre-delete).
+
+## Helm Hooks
+
+Helm hooks are Kubernetes manifests (like Deployments, Jobs, Pods, etc.) that Helm manages and executes at predefined points during a release's lifecycle. These points include actions like installation, upgrade, rollback, and deletion.
+
+### How They Work
+
+When Helm processes a chart, it looks for special annotations within the Kubernetes manifests in the `templates/` directory. These annotations tell Helm that a particular manifest defines a hook and specifies at which point(s) in the release lifecycle the hook should be executed.
+
+#### Common Hook Annotations
+
+The most important annotation is `helm.sh/hook`. This annotation specifies the event that triggers the hook. Some common hook types include:
+
+- **`pre-install`**: Executes *before* any resources in the chart are installed.
+- **`post-install`**: Executes *after* all resources in the chart have been successfully installed.
+- **`pre-upgrade`**: Executes *before* any resources in the chart are upgraded.
+- **`post-upgrade`**: Executes *after* all resources in the chart have been successfully upgraded.
+- **`pre-rollback`**: Executes *before* a rollback operation.
+- **`post-rollback`**: Executes *after* a rollback operation has completed.
+- **`pre-delete`**: Executes *before* any resources in the release are deleted during an uninstall operation.
+- **`post-delete`**: Executes *after* all resources in the release have been deleted.
+- **`test`**: Executes when you run the `helm test <release-name>` command.
+
+You can specify multiple hook types for a single manifest using a comma-separated list (e.g., `helm.sh/hook: "pre-install,post-upgrade"`).
+
+#### Other Useful Hook Annotations
+
+- **`helm.sh/hook-weight`**: Allows you to define the order in which hooks of the same type are executed. Hooks with lower weights are executed first. This is useful when you have dependencies between pre- or post- actions.
+- **`helm.sh/hook-delete-policy`**: Defines when the hook resource should be deleted after it has been executed. Possible values include:
+- `before-hook-creation`: Delete previous hook instances before creating a new one.
+- `hook-succeeded`: Delete the hook resource only if it executed successfully. (Default for most hooks)
+- `hook-failed`: Delete the hook resource if it failed to execute.
+- `before-hook-creation,hook-succeeded`: Delete previous instances before creating a new one, and delete the new instance if it succeeds.
+- `before-hook-creation,hook-failed`: Delete previous instances before creating a new one, and delete the new instance if it fails.
+- `never`: Never delete the hook resource. This can be useful for debugging or for resources that need to persist.
+
+#### Common Use Cases for Helm Hooks
+
+- **Database Migrations:** Running database schema migrations before a new version of your application is deployed (`pre-upgrade`).
+- **Backend Initialization:** Performing setup tasks like creating default users or populating initial data after installation (`post-install`).
+- **Service Availability Checks:** Verifying that dependent services are running before installing or upgrading your application (`pre-install`, `pre-upgrade`).
+- **Notifications:** Sending notifications (e.g., via Slack or email) after a successful installation or upgrade (`post-install`, `post-upgrade`).
+- **Cleanup Tasks:** Removing temporary resources or performing cleanup actions before or after deletion (`pre-delete`, `post-delete`).
+- **Testing:** Running integration or smoke tests after a deployment to ensure it's working correctly (`test`).
+
+#### Helm Hook Example
+
+```yaml
+# templates/migrations-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations-job-{{ .Release.Name }}-{{ .Release.Revision }}
+  annotations:
+    "helm.sh/hook": "pre-upgrade"
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": "hook-succeeded"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: your-migration-image:latest
+        command: ["/app/migrate.sh"]
+```
+
+## Helm Test
+
+Helm tests let you define and run **verification steps** within your Helm chart to ensure your deployed application is working correctly *after* installation or upgrade.
+
+Think of it like including **mini-checks** alongside your application deployment definition. You define these checks as Kubernetes Pods (usually Jobs or Pods that run once and exit). When you run `helm test <release-name>`, Helm launches these test Pods in your cluster.
+
+If the test Pods complete successfully (exit with a 0 status), the test is considered **passed**. If they fail (non-zero exit status), the test is **failed**.
+
+This helps automate basic sanity checks and gives you confidence that your Helm deployment is healthy right after it's deployed.
+
+### Helm Test Example
+
+template:
+
+```yaml
+# mychart/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+```
+
+test:
+
+```yaml
+# mychart/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app-test-connection
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+  - name: test-container
+    image: curlimages/curl:latest
+    command: ['curl', '-I', 'http://my-app:80']
+  restartPolicy: Never
+```
+
+$Explain$
+
+1. mychart/templates/deployment.yaml: This is a standard Kubernetes Deployment that deploys a single instance of the nginx:latest image, exposing port 80.
+
+2. mychart/templates/tests/test-connection.yaml: This defines a Kubernetes Pod that acts as our test:
+
+- `apiVersion`: v1, kind: Pod: It's a simple Pod.
+- `metadata.annotations."helm.sh/hook"`: test: This crucial annotation tells Helm that this Pod is a test hook. It will be executed when you run helm test my-release.
+- `spec.containers`: Defines a single container named test-container using the `curlimages/curl:latest` image, which is a lightweight image with the curl command-line tool.
+- `spec.containers.command`: The command executed within the test container is `curl -I http://my-app:80`. This sends an HTTP HEAD request to the my-app service on port 80. A successful response (HTTP status code in the 2xx or 3xx range) indicates the service is reachable.
+- `spec.restartPolicy`: Never: Once the `curl` command finishes (either successfully or with an error), the Pod will not be restarted.
+
+## Helm Resource Policies Explained
+
+Helm Resource Policies are annotations you can add to Kubernetes manifests within your Helm chart to control how Helm handles existing resources during `helm install` and `helm upgrade` operations. They allow you to deviate from Helm's default behavior of managing all defined resources for a release.
+
+**Key Resource Policy Annotations:**
+
+You define Resource Policies using the `helm.sh/resource-policy` annotation in the `metadata.annotations` section of your Kubernetes manifests.
+
+- **`keep`**: Tells Helm to **not** manage the resource. If a resource with the same name exists, Helm leaves it untouched during install, upgrade, and uninstall. Helm won't track it in the release history.
+
+    ```yaml
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: my-existing-pvc
+      annotations:
+        "helm.sh/resource-policy": keep
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+    ```
+
+- **`retain`**: Tells Helm to **keep** the resource during an uninstall operation (`helm uninstall`). Helm will still manage and potentially update this resource during upgrades.
+
+    ```yaml
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: my-data-pvc
+      annotations:
+        "helm.sh/resource-policy": retain
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+    ```
+
+**How to Use:**
+
+Add the `helm.sh/resource-policy: <policy-value>` annotation to the `metadata.annotations` of the desired Kubernetes resource definition in your chart's `templates/` directory.
+
+**Important Considerations:**
+
+- **Scope:** Policies apply to individual resources.
+- **Override Default:** They override Helm's default management.
+- **`keep` Implications:** Helm won't update `kept` resources even if their definition changes in the chart.
+- **`retain` Implications:** Retained resources must be managed manually after uninstall.
+- **No "Adopt" Policy:** Helm doesn't have a direct policy to adopt existing, unmanaged resources.
+
+In essence, Helm Resource Policies provide fine-grained control over how Helm interacts with specific Kubernetes resources during a release lifecycle, allowing you to handle externally managed resources or ensure the persistence of certain resources across release uninstalls.
+
+## helm sign and verify charts
+
+**Sign:** Chart developers cryptographically sign their Helm charts to guarantee their **authenticity** and **integrity**. This proves the chart hasn't been tampered with since it was signed and confirms the publisher.
+
+**Verify:** Users can cryptographically verify a signed Helm chart before installation to ensure it's the original, untampered chart from a trusted source. This adds a layer of security and trust to Helm deployments.
+gnupg -> use this
+
+### Toolset
+
+**1. For Signing:**
+
+- **Helm CLI:** The core `helm` command-line tool itself provides the functionality to sign charts using the `helm package --sign` command. This requires a PGP keypair.
+- **GnuPG (GPG):** Helm relies on GPG to handle the cryptographic signing process. You'll need GPG installed to generate and manage your PGP keys.
+- **Keyring:** A keyring (usually `~/.gnupg/secring.gpg` for private keys) where your private signing key is stored. You'll need to specify the key to use during the signing process.
+- **`helm-sign` (Optional):** A third-party Python tool that offers more flexibility in using existing GPG environments for signing Helm charts.
+
+**2. For Verification:**
+
+- **Helm CLI:** The `helm verify` command is used to check the signature of a packaged chart (`.tgz` file). Additionally, the `helm install --verify` and `helm pull --verify` flags allow verification during installation or pulling of charts.
+- **GnuPG (GPG):** Helm uses GPG to verify the cryptographic signatures. You'll need GPG installed to import and manage the public keys of chart publishers you trust.
+- **Public Keyring:** A keyring (usually `~/.gnupg/pubring.gpg` for public keys) containing the public keys of the chart signers you want to trust. You might need to import the public key of the chart publisher into your keyring.
+
+## helm repository host on gitlab
+
+## artifact hub
+
+## validate values by json
+
+## use oci registry
