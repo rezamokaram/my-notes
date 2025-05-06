@@ -94,6 +94,8 @@
   - [helm sign and verify charts](#helm-sign-and-verify-charts)
     - [Toolset](#toolset)
   - [helm repository host on gitlab](#helm-repository-host-on-gitlab)
+  - [Basic Commands](#basic-commands)
+  - [Using the Chart as a Registry Chart Later](#using-the-chart-as-a-registry-chart-later)
   - [artifact hub](#artifact-hub)
   - [validate values by json](#validate-values-by-json)
   - [use oci registry](#use-oci-registry)
@@ -1424,7 +1426,62 @@ gnupg -> use this
 
 ## helm repository host on gitlab
 
+- `Packaging:` You still package your Helm chart using the standard helm package command, resulting in a .tgz file.
+- `Pushing:` Instead of uploading to an HTTP server, you use Helm commands that interact with the OCI registry (GitLab's Container Registry in this case) to "push" your chart.
+- `Referencing:` When you want to install a chart, you'll refer to it using its OCI URL in the GitLab Container Registry. Helm will then pull the chart directly from the registry.
+
+**Key Benefit:** This method leverages existing container registry infrastructure, which often has robust authentication and authorization mechanisms.
+
+## Basic Commands
+
+Assuming you have Helm v3.8.0 or later installed:
+
+1. Login to the GitLab Container Registry (if needed)
+
+    ```bash
+    docker login registry.gitlab.com
+    # Enter your GitLab username and personal access token (with `read_registry` and `write_registry` scopes)
+    ```
+
+2. Tag your packaged chart
+
+    You need to tag your local chart package with the OCI registry URL. The format is typically:
+
+    ```bash
+        helm chart save <path-to-your-chart.tgz> oci://[registry.gitlab.com/](https://registry.gitlab.com/)<your-group>/<your-project>/<chart-name>:<version>
+    ```
+
+    **Example:**
+
+    ```bash
+        helm chart save my-app-0.1.0.tgz oci://[registry.gitlab.com/my-group/my-project/my-app:0.1.0](https://registry.gitlab.com/my-group/my-project/my-app:0.1.0)
+    ```
+
+3. Push the tagged chart to the GitLab Container Registry
+
+    ```bash
+        helm chart push oci://[registry.gitlab.com/](https://registry.gitlab.com/)<your-group>/<your-project>/<chart-name>:<version>
+    ```
+
+    **Example:**
+
+    ```bash
+        helm chart push oci://[registry.gitlab.com/my-group/my-project/my-app:0.1.0](https://registry.gitlab.com/my-group/my-project/my-app:0.1.0)
+    ```
+
+    $OCI$ (Open Container Initiative) is a Linux Foundation project established in 2015 by Docker, CoreOS, and others. Its goal is to create open industry standards for container formats and runtimes.
+
+## Using the Chart as a Registry Chart Later
+
+To use a chart stored in the GitLab Container Registry, you don't need to "add" it as a traditional repository. You can directly reference it in your `helm install` or `helm upgrade` commands using its OCI URL:
+
+```bash
+helm install <release-name> oci://[registry.gitlab.com/](https://registry.gitlab.com/)<your-group>/<your-project>/<chart-name> --version <version>
+```
+
 ## artifact hub
+
+Artifact Hub acts as a discovery platform and central catalog for cloud-native packages, including Helm charts. It doesn't directly interact with your Git repository to store your chart. Instead, it indexes metadata about your chart from a packaged Helm repository that you make accessible (usually via HTTP).
 
 ## validate values by json
 

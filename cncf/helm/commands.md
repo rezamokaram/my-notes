@@ -315,5 +315,3 @@ helm upgrade myrelease ./mychart-1.2.4.tgz --set image.tag=v2
 | Delete + reinstall | `helm uninstall myrelease && helm install myrelease ./mychart-1.2.4.tgz` |
 
 # helm plugin
-
-to-s : 39 -> 1
