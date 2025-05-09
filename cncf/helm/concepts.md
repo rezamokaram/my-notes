@@ -81,24 +81,24 @@
     - [Global Variables Example](#global-variables-example)
   - [implicit and Explicit in values](#implicit-and-explicit-in-values)
 - [Helm Starters Chart](#helm-starters-chart)
-  - [Release Lifecycle](#release-lifecycle)
-  - [Helm Hooks](#helm-hooks)
-    - [How They Work](#how-they-work)
-      - [Common Hook Annotations](#common-hook-annotations)
-      - [Other Useful Hook Annotations](#other-useful-hook-annotations)
-      - [Common Use Cases for Helm Hooks](#common-use-cases-for-helm-hooks)
-      - [Helm Hook Example](#helm-hook-example)
-  - [Helm Test](#helm-test)
-    - [Helm Test Example](#helm-test-example)
+- [Release Lifecycle](#release-lifecycle)
+- [Helm Hooks](#helm-hooks)
+  - [How They Work](#how-they-work)
+  - [Common Hook Annotations](#common-hook-annotations)
+  - [Other Useful Hook Annotations](#other-useful-hook-annotations)
+  - [Common Use Cases for Helm Hooks](#common-use-cases-for-helm-hooks)
+  - [Helm Hook Example](#helm-hook-example)
+- [Helm Test](#helm-test)
+  - [Helm Test Example](#helm-test-example)
   - [Helm Resource Policies Explained](#helm-resource-policies-explained)
   - [helm sign and verify charts](#helm-sign-and-verify-charts)
     - [Toolset](#toolset)
-  - [helm repository host on gitlab](#helm-repository-host-on-gitlab)
+- [helm repository host on gitlab](#helm-repository-host-on-gitlab)
   - [Basic Commands](#basic-commands)
   - [Using the Chart as a Registry Chart Later](#using-the-chart-as-a-registry-chart-later)
-  - [artifact hub](#artifact-hub)
-  - [validate values by json](#validate-values-by-json)
-  - [use oci registry](#use-oci-registry)
+- [artifact hub](#artifact-hub)
+- [validate values by json](#validate-values-by-json)
+- [use oci registry](#use-oci-registry)
 
 # Values Hierarchy  
 
@@ -1201,7 +1201,7 @@ A Helm starter chart is essentially a basic, often minimal, Helm chart structure
 
 Think of it like a template or a scaffolding tool specifically for Helm charts. It helps you quickly set up the fundamental structure and potentially some basic resource definitions, allowing you to focus on the specifics of your application deployment.
 
-## Release Lifecycle
+# Release Lifecycle
 
 - ***Chart:*** A package containing all the necessary resource definitions (templates), metadata, and configuration files to deploy an application on Kubernetes.
 
@@ -1213,15 +1213,15 @@ Think of it like a template or a scaffolding tool specifically for Helm charts. 
 
 - ***Hooks:*** Special lifecycle events within a release that allow chart developers to execute specific actions at certain points (e.g., pre-install, post-upgrade, pre-delete).
 
-## Helm Hooks
+# Helm Hooks
 
 Helm hooks are Kubernetes manifests (like Deployments, Jobs, Pods, etc.) that Helm manages and executes at predefined points during a release's lifecycle. These points include actions like installation, upgrade, rollback, and deletion.
 
-### How They Work
+## How They Work
 
 When Helm processes a chart, it looks for special annotations within the Kubernetes manifests in the `templates/` directory. These annotations tell Helm that a particular manifest defines a hook and specifies at which point(s) in the release lifecycle the hook should be executed.
 
-#### Common Hook Annotations
+## Common Hook Annotations
 
 The most important annotation is `helm.sh/hook`. This annotation specifies the event that triggers the hook. Some common hook types include:
 
@@ -1237,7 +1237,7 @@ The most important annotation is `helm.sh/hook`. This annotation specifies the e
 
 You can specify multiple hook types for a single manifest using a comma-separated list (e.g., `helm.sh/hook: "pre-install,post-upgrade"`).
 
-#### Other Useful Hook Annotations
+## Other Useful Hook Annotations
 
 - **`helm.sh/hook-weight`**: Allows you to define the order in which hooks of the same type are executed. Hooks with lower weights are executed first. This is useful when you have dependencies between pre- or post- actions.
 - **`helm.sh/hook-delete-policy`**: Defines when the hook resource should be deleted after it has been executed. Possible values include:
@@ -1248,7 +1248,7 @@ You can specify multiple hook types for a single manifest using a comma-separate
 - `before-hook-creation,hook-failed`: Delete previous instances before creating a new one, and delete the new instance if it fails.
 - `never`: Never delete the hook resource. This can be useful for debugging or for resources that need to persist.
 
-#### Common Use Cases for Helm Hooks
+## Common Use Cases for Helm Hooks
 
 - **Database Migrations:** Running database schema migrations before a new version of your application is deployed (`pre-upgrade`).
 - **Backend Initialization:** Performing setup tasks like creating default users or populating initial data after installation (`post-install`).
@@ -1257,7 +1257,7 @@ You can specify multiple hook types for a single manifest using a comma-separate
 - **Cleanup Tasks:** Removing temporary resources or performing cleanup actions before or after deletion (`pre-delete`, `post-delete`).
 - **Testing:** Running integration or smoke tests after a deployment to ensure it's working correctly (`test`).
 
-#### Helm Hook Example
+## Helm Hook Example
 
 ```yaml
 # templates/migrations-job.yaml
@@ -1279,7 +1279,7 @@ spec:
         command: ["/app/migrate.sh"]
 ```
 
-## Helm Test
+# Helm Test
 
 Helm tests let you define and run **verification steps** within your Helm chart to ensure your deployed application is working correctly *after* installation or upgrade.
 
@@ -1289,7 +1289,7 @@ If the test Pods complete successfully (exit with a 0 status), the test is consi
 
 This helps automate basic sanity checks and gives you confidence that your Helm deployment is healthy right after it's deployed.
 
-### Helm Test Example
+## Helm Test Example
 
 template:
 
@@ -1424,7 +1424,7 @@ gnupg -> use this
 - **GnuPG (GPG):** Helm uses GPG to verify the cryptographic signatures. You'll need GPG installed to import and manage the public keys of chart publishers you trust.
 - **Public Keyring:** A keyring (usually `~/.gnupg/pubring.gpg` for public keys) containing the public keys of the chart signers you want to trust. You might need to import the public key of the chart publisher into your keyring.
 
-## helm repository host on gitlab
+# helm repository host on gitlab
 
 - `Packaging:` You still package your Helm chart using the standard helm package command, resulting in a .tgz file.
 - `Pushing:` Instead of uploading to an HTTP server, you use Helm commands that interact with the OCI registry (GitLab's Container Registry in this case) to "push" your chart.
@@ -1479,10 +1479,10 @@ To use a chart stored in the GitLab Container Registry, you don't need to "add" 
 helm install <release-name> oci://[registry.gitlab.com/](https://registry.gitlab.com/)<your-group>/<your-project>/<chart-name> --version <version>
 ```
 
-## artifact hub
+# artifact hub
 
 Artifact Hub acts as a discovery platform and central catalog for cloud-native packages, including Helm charts. It doesn't directly interact with your Git repository to store your chart. Instead, it indexes metadata about your chart from a packaged Helm repository that you make accessible (usually via HTTP).
 
-## validate values by json
+# validate values by json
 
-## use oci registry
+# use oci registry
