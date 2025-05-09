@@ -6,7 +6,7 @@ Role-Based Access Control (RBAC) is a widely used access control mechanism in co
 
 Here's a detailed explanation of key concepts and components related to Role-Based Access Control:
 
-### **Core Components:**
+## Core Components
 
 1. **Roles:**
     - Roles are predefined sets of permissions that define a user's job function or responsibilities. Users are assigned to one or more roles, and the permissions associated with those roles determine what actions the users can perform.
@@ -15,7 +15,7 @@ Here's a detailed explanation of key concepts and components related to Role-Bas
 3. **Users:**
     - Users are individuals who interact with a system. Each user is assigned to one or more roles, and their access rights are determined by the permissions associated with those roles.
 
-### **Key Concepts:**
+## Key Concepts
 
 1. **Role Hierarchy:**
     - In some RBAC systems, roles can be organized in a hierarchical structure. This allows for easier management of roles and permissions. Users inherit permissions not only from their assigned roles but also from roles higher up in the hierarchy.
@@ -26,7 +26,7 @@ Here's a detailed explanation of key concepts and components related to Role-Bas
 4. **Least Privilege Principle:**
     - RBAC aligns with the principle of least privilege, which means that users should have the minimum level of access necessary to perform their job functions. Unnecessary permissions are not granted.
 
-### **Implementation:**
+## Implementation
 
 1. **Database Schema:**
     - In a database, roles and permissions are often represented in tables. A users table may have a foreign key that links to a roles table, and roles may have associated permissions.
@@ -35,7 +35,7 @@ Here's a detailed explanation of key concepts and components related to Role-Bas
 3. **Authorization Checks:**
     - During user authentication, the system checks the roles assigned to the user and determines whether the user has the necessary permissions to perform a requested action.
 
-### **Advantages of RBAC:**
+## Advantages of RBAC
 
 1. **Scalability:**
     - RBAC scales well in large and complex systems, making it easier to manage permissions across a large number of users.
@@ -53,7 +53,7 @@ In summary, Role-Based Access Control is a powerful and widely adopted approach 
 there are some other methods like:
 
 1. rbac → rule-based access control
-2. abac → attribute-based access control 
+2. abac → attribute-based access control
 3. …
 
 ## How exactly we should asign permissions? [IMPLEMENTATION]
