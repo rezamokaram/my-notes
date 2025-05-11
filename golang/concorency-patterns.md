@@ -7,12 +7,15 @@ Golang provides built-in support for concurrency through goroutines and channels
 ## 1. Worker Pool Pattern
 
 ### Description
+
 A set of worker goroutines processes tasks from a shared channel.
 
 ### Use Case
+
 Efficiently handling a large number of tasks with limited resources (e.g., processing HTTP requests).
 
 ### Example
+
 ```go
 func worker(id int, tasks <-chan int, results chan<- int) {
     for task := range tasks {
@@ -45,15 +48,19 @@ func main() {
 ## 2. Fan-Out, Fan-In
 
 ### Fan-Out
+
 Spawns multiple goroutines to process tasks concurrently.
 
 ### Fan-In
+
 Combines results from multiple goroutines into a single channel.
 
-### Use Case
+### Fan-Out, Fan-In Use Case
+
 Distributing workload and aggregating results.
 
-### Example
+### Fan-Out, Fan-In Example
+
 ```go
 func generator(nums ...int) <-chan int {
     out := make(chan int)
@@ -90,13 +97,16 @@ func main() {
 
 ## 3. Pipeline Pattern
 
-### Description
+### Pipeline Pattern Description
+
 Passes data through a series of stages, each performing a specific operation.
 
-### Use Case
+### Pipeline Pattern Use Case
+
 Sequential processing where each stage operates independently.
 
-### Example
+### Pipeline Pattern Example
+
 ```go
 func gen(nums ...int) <-chan int {
     out := make(chan int)
@@ -134,13 +144,16 @@ func main() {
 
 ## 4. Publish-Subscribe (Pub-Sub)
 
-### Description
+### Pub-Sub Description
+
 One goroutine (publisher) sends messages to multiple subscribers via channels.
 
-### Use Case
+### Pub-Sub Use Case
+
 Event-driven systems.
 
-### Example
+### Pub-Sub Example
+
 ```go
 func publish(ch chan string, messages []string) {
     for _, msg := range messages {
@@ -172,13 +185,16 @@ func main() {
 
 ## 5. Mutex for Shared Resources
 
-### Description
+### Shared Resources Description
+
 Protects shared data with a `sync.Mutex` to prevent race conditions.
 
-### Use Case
+### Shared Resources Use Case
+
 Safe access to shared variables.
 
-### Example
+### Shared Resources Example
+
 ```go
 import "sync"
 
@@ -207,13 +223,16 @@ func main() {
 
 ## 6. Rate Limiting
 
-### Description
+### Rate Limiting Description
+
 Controls the rate of processing tasks using a `time.Ticker`.
 
-### Use Case
+### Rate Limiting Use Case
+
 Limiting API calls or task processing.
 
-### Example
+### Rate Limiting Example
+
 ```go
 func main() {
     requests := make(chan int, 5)
@@ -236,13 +255,16 @@ func main() {
 
 ## 7. Select Statement for Multiplexing
 
-### Description
+### Multiplexing Description
+
 Waits on multiple channels and handles whichever one is ready.
 
-### Use Case
+### Multiplexing Use Case
+
 Handling multiple input sources or timeout scenarios.
 
-### Example
+### Multiplexing Example
+
 ```go
 func main() {
     ch1 := make(chan string)
@@ -273,13 +295,16 @@ func main() {
 
 ## 8. Context for Cancellation
 
-### Description
+### Cancellation Description
+
 Manages goroutines with cancellation and deadlines using `context.Context`.
 
-### Use Case
+### Cancellation Use Case
+
 Graceful shutdown or timeout handling.
 
-### Example
+### Cancellation Example
+
 ```go
 import "context"
 
@@ -311,13 +336,16 @@ func main() {
 
 ## 9. Actor Model
 
-### Description
+### Actor Description
+
 Encapsulates state and communicates through messages.
 
-### Use Case
+### Actor Use Case
+
 High-concurrency systems with minimal shared state.
 
-### Example
+### Actor Example
+
 ```go
 func actor(ch chan int) {
     state := 0
@@ -343,11 +371,14 @@ func main() {
 
 ## 10. Deadlock Prevention
 
-### Description
+### Deadlock Prevention Description
+
 Avoids cyclic dependencies between goroutines.
 
-### Use Case
+### Deadlock Prevention Use Case
+
 Safeguarding systems from freezing.
 
 ### Note
+
 Avoid shared locks or use proper lock ordering in your design.
