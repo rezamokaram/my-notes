@@ -17,7 +17,7 @@ Here's a breakdown of why this is important and some examples:
 ## Examples of Idempotent Operations
 
 * **HTTP `GET`:** Retrieving a resource. Making the same `GET` request multiple times will always return the same resource (as long as it hasn't been modified).
-* **HTTP `PUT` (for updating a resource with a specific state):** If you send a `PUT` request to set a user's email to "test@example.com", sending the same request again will keep the email at "test@example.com". The system's state remains the same.
+* **HTTP `PUT` (for updating a resource with a specific state):** If you send a `PUT` request to set a user's email to "<test@example.com>", sending the same request again will keep the email at "<test@example.com>". The system's state remains the same.
 * **HTTP `DELETE`:** Deleting a resource. Once a resource is deleted, subsequent `DELETE` requests for the same resource will typically result in a "resource not found" error, but the system's overall state regarding that resource (it being absent) remains consistent.
 * **Setting a value in a database:** An operation like `UPDATE users SET is_active = TRUE WHERE id = 123` is idempotent. Running it multiple times will always result in the `is_active` flag for user 123 being `TRUE`.
 
