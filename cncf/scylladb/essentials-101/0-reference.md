@@ -7,4 +7,3 @@
 - [cql basic ops 1](https://university.scylladb.com/lab-install-and-start-scylladb-part-1-of-2/)
 
 - [cql basic ops 2](https://university.scylladb.com/lab-basic-cql-operations-part-2-of-2/)
-- 
