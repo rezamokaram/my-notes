@@ -2,6 +2,8 @@
 
 In **ScyllaDB**, the **Consistency Level (CL)** determines how many replicas in the cluster must acknowledge a read or write operation before it is considered successful.
 
+[cl explain doc](https://university.scylladb.com/courses/scylla-essentials-overview/lessons/high-availability/topic/consistency-level/)
+
 ## Key Concepts
 
 - ScyllaDB is a **distributed NoSQL database** based on Apache Cassandra.

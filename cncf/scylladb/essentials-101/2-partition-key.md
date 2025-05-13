@@ -121,9 +121,3 @@ If we have a replication factor of **3**, then this data will also be replicated
 - This method minimizes data movement when nodes are added or removed from the cluster, making it highly efficient and scalable.
   
 By using consistent hashing, systems can scale horizontally and provide fault tolerance with minimal disruption.
-
-## scylla db cluster and data replication
-
-// TODO
-
-
