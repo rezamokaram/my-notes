@@ -90,6 +90,18 @@ Assume token space from 0 to 300:
   - Replica 2: Node C
   - Replica 3: Node A
 
+## Replication Factor (RF) and Availability in ScyllaDB
+
+- RF determines how many replicas of data are stored across nodes. For example:
+
+  - RF = 2: Two copies of data.
+
+  - RF = 3: Three copies of data.
+
+- Higher RF increases availability because more replicas exist. If one node fails, data can still be served from the other replicas.
+
+- RF = 3 means data is available as long as at least 2 replicas are up.
+
 ---
 
 ## Summary
