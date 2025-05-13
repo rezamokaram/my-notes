@@ -17,7 +17,7 @@ In **ScyllaDB**, the **Consistency Level (CL)** determines how many replicas in 
 | Consistency Level | Description |
 |-------------------|-------------|
 | **ONE**           | Only **one** replica must respond. Fast but less consistent. |
-| **QUORUM**        | A **majority** of replicas must respond. Good balance. |
+| **QUORUM**        | A **majority** of replicas must respond. Good balance. formula: `CL` = $int((N / 2) + 1)$, where `N` = number of nodes. |
 | **LOCAL_QUORUM**  | A majority of replicas in the **local datacenter** must respond. Reduces latency in multi-DC setups. |
 | **ALL**           | **All** replicas must respond. Strongest consistency, lowest availability. |
 | **ANY** (writes only) | Allows **any node** (even a hinted handoff) to acknowledge. Weakest consistency, highest availability. |
