@@ -1,6 +1,4 @@
-# rel of cl and consistency
-
-## add fault tolerance to se
+# add fault tolerance to se
 
 ## when quorum
 
