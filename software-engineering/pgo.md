@@ -1,18 +1,18 @@
 # PGO
 
-Profile guided optimization (PGO)
+`Profile guided optimization (PGO)`
 
 also known as
 
-profile-directed feedback (PDF)
+`profile-directed feedback (PDF)`
 
-also known as 
+also known as
 
-feedback-directed optimization (FDO)
+`feedback-directed optimization (FDO)`
 
 Profile Guided Optimization (PGO) is a sophisticated optimization technique used in software development to improve program performance by collecting data about its runtime behavior and using that information to inform and guide the optimization process. This technique is typically implemented in the compiler, which uses the collected data to generate more optimized machine code.
 
-### **How PGO Works**
+## **How PGO Works**
 
 PGO involves several steps, typically executed in a cyclic workflow:
 
