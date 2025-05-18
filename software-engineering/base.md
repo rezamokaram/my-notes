@@ -13,4 +13,5 @@ Here's a breakdown of what each component of BASE means:
 BASE is particularly relevant in distributed database systems where the challenges of network partitioning, latency, and scale come into play. NoSQL databases, which often aim for high availability and scalability, adopt the BASE model to provide a more flexible approach to data consistency compared to the stricter ACID model used in traditional relational databases.
 
 ## summary
+
 BASE emphasizes availability and partition tolerance at the expense of immediate consistency, making it suitable for many modern applications that require scalability and flexibility.
