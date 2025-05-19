@@ -7,8 +7,9 @@ In software engineering, Raft is a consensus algorithm designed to manage replic
 1. [The Raft Consensus Algorithm](https://raft.github.io/)
 2. [A visualize doc](http://thesecretlivesofdata.com/raft/)
 
-## Key Concepts of Raft:
-### 1. Leader Election:
+## Key Concepts of Raft
+
+### Leader Election
 
     Raft uses a leader-based approach where one server acts as the leader, and the others are followers.
 
@@ -16,27 +17,27 @@ In software engineering, Raft is a consensus algorithm designed to manage replic
 
     If the leader fails, a new leader is elected through a voting process.
 
-### 2. Log Replication:
+### Log Replication
 
     The leader ensures that all followers have the same log entries by replicating them across the cluster.
 
     Once a log entry is replicated to a majority of servers, it is considered committed and applied to the state machine.
 
-### 3. Safety and Consistency:
+### Safety and Consistency
 
     Raft guarantees that only one leader can be elected at a time (safety).
 
     It ensures that all servers agree on the same sequence of log entries (consistency).
 
-### 4. Fault Tolerance:
+### Fault Tolerance
 
     Raft can tolerate failures as long as a majority of servers are operational.
 
     It handles leader crashes, network partitions, and other failures gracefully.
 
-## How Raft Works:
+## How Raft Works
 
-### 1. Leader Election:
+### 1. Leader Election
 
     Servers start in the follower state.
 
@@ -44,7 +45,7 @@ In software engineering, Raft is a consensus algorithm designed to manage replic
 
     A candidate becomes the leader if it receives votes from a majority of servers.
 
-### 2. Log Replication:
+### 2. Log Replication
 
     The leader accepts client requests and appends them to its log.
 
@@ -52,23 +53,28 @@ In software engineering, Raft is a consensus algorithm designed to manage replic
 
     Once a majority of followers acknowledge the entry, the leader commits it and notifies the followers.
 
-### 3. Safety Mechanisms:
+### 3. Safety Mechanisms
 
     Raft ensures that only servers with up-to-date logs can become leaders.
 
     It uses term numbers to detect stale leaders and prevent split-brain scenarios.
 
-## Advantages of Raft:
-### 1. Simplicity:
+## Advantages of Raft
+
+### 1. Simplicity
+
     Raft is designed to be easier to understand and implement compared to other consensus algorithms like Paxos.
 
-### 2. Strong Consistency: 
+### 2. Strong Consistency
+
     It provides strong consistency guarantees for distributed systems.
 
-### 3. Fault Tolerance: 
+### 3. Fault Tolerance
+
     It can handle server failures and network issues effectively.
 
-## Use Cases:
+## Use Cases
+
 Raft is commonly used in distributed databases, key-value stores, and other systems requiring fault tolerance and consistency, such as:
 
 [ETCD](https://github.com/etcd-io/etcd): A distributed key-value store used in Kubernetes.
@@ -82,4 +88,5 @@ Raft is commonly used in distributed databases, key-value stores, and other syst
 [NATS](https://github.com/nats-io/nats-server): graft
 
 ## Summary
+
 Raft is a robust and practical consensus algorithm that simplifies the implementation of fault-tolerant distributed systems.
