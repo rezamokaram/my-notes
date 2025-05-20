@@ -3,19 +3,22 @@
 A Bloom Filter is a probabilistic data structure that is used to test whether an element is present in a set. It is highly space-efficient but allows a small probability of false positives (i.e., it may say an element is present when it's not) while guaranteeing no false negatives (i.e., if it says an element is absent, it's definitely absent).
 
 ## How It Works
+
 A Bloom Filter uses:
 
 1. A bit array of size `m`, initially set to all zeros.  
 1. `k` independent hash functions that each map elements to positions in the bit array.  
 
-## Insertion:
+## Insertion
+
 When inserting an element:
 
 - The element is passed through each of the `k` hash functions.
 - Each hash function gives a position in the bit array.
 - The bits at these positions are set to 1.  
 
-## Membership Check (Look Up):  
+## Membership Check (Look Up)
+
 To check if an element is in the set:
 
 - The element is passed through the same `k` hash functions.  
@@ -50,75 +53,71 @@ To check if an element is in the set:
 | **Adaptability** | Fixed size; resizing requires rebuilding. | Can adapt dynamically using cuckoo hashing techniques. |
 | **Performance** | Fast lookups and inserts. | Lookups are fast, but inserts may require multiple relocations. |
 
-
 ## Sample Impl  
 
 ```go
-
 package main
 
 import (
-	"crypto/sha256"
-	"encoding/binary"
-	"fmt"
-	"hash/fnv"
-	"math"
+ "crypto/sha256"
+ "encoding/binary"
+ "fmt"
+ "hash/fnv"
+ "math"
 )
 
 type BloomFilter struct {
-	bitArray []bool
-	size     uint
-	hashFuncs int
+ bitArray []bool
+ size     uint
+ hashFuncs int
 }
 
 // NewBloomFilter initializes a Bloom Filter with given size and number of hash functions
 func NewBloomFilter(size uint, hashFuncs int) *BloomFilter {
-	return &BloomFilter{
-		bitArray: make([]bool, size),
-		size:     size,
-		hashFuncs: hashFuncs,
-	}
+ return &BloomFilter{
+  bitArray: make([]bool, size),
+  size:     size,
+  hashFuncs: hashFuncs,
+ }
 }
 
 // hash generates multiple hash values for an element
 func (bf *BloomFilter) hash(data string, seed int) uint {
-	h := fnv.New64a()
-	h.Write([]byte(fmt.Sprintf("%d:%s", seed, data)))
-	return uint(h.Sum64()) % bf.size
+ h := fnv.New64a()
+ h.Write([]byte(fmt.Sprintf("%d:%s", seed, data)))
+ return uint(h.Sum64()) % bf.size
 }
 
 // Add inserts an element into the Bloom Filter
 func (bf *BloomFilter) Add(data string) {
-	for i := 0; i < bf.hashFuncs; i++ {
-		index := bf.hash(data, i)
-		bf.bitArray[index] = true
-	}
+ for i := 0; i < bf.hashFuncs; i++ {
+  index := bf.hash(data, i)
+  bf.bitArray[index] = true
+ }
 }
 
 // MightContain checks if an element might be in the filter
 func (bf *BloomFilter) MightContain(data string) bool {
-	for i := 0; i < bf.hashFuncs; i++ {
-		index := bf.hash(data, i)
-		if !bf.bitArray[index] {
-			return false
-		}
-	}
-	return true
+ for i := 0; i < bf.hashFuncs; i++ {
+  index := bf.hash(data, i)
+  if !bf.bitArray[index] {
+   return false
+  }
+ }
+ return true
 }
 
 func main() {
-	bf := NewBloomFilter(1000, 3)
-	bf.Add("hello")
-	bf.Add("world")
+ bf := NewBloomFilter(1000, 3)
+ bf.Add("hello")
+ bf.Add("world")
 
-	fmt.Println("MightContain 'hello':", bf.MightContain("hello")) // true
-	fmt.Println("MightContain 'golang':", bf.MightContain("golang")) // false (most likely)
+ fmt.Println("MightContain 'hello':", bf.MightContain("hello")) // true
+ fmt.Println("MightContain 'golang':", bf.MightContain("golang")) // false (most likely)
 }
-
-
 ```
 
-## Comparison of Implementations 
+## Comparison of Implementations
 
 | Feature         | **Bloom Filter** | **Cuckoo Filter** |
 |----------------|----------------|----------------|
@@ -130,15 +129,15 @@ func main() {
 | **Use Case** | Large-scale applications, caching | When deletions and lower false positives are needed |
 
 ## Which One Should You Use?
+
 - Use Bloom Filter if:
 
-    - You need fast insertions and lookups.  
-    - You can tolerate false positives.  
-    - You don't need deletions.  
+  - You need fast insertions and lookups.  
+  - You can tolerate false positives.  
+  - You don't need deletions.  
 
 - Use Cuckoo Filter if:
 
-    - You need low false positives.  
-    - You need deletions.  
-    - You can handle a more complex insertion process.  
-
+  - You need low false positives.  
+  - You need deletions.  
+  - You can handle a more complex insertion process.  
