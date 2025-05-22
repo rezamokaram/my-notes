@@ -19,7 +19,8 @@ docker exec -it scylla-node3 nodetool status
 ## sample cql
 
 ```sh
-CREATE KEYSPACE mykeyspace WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'replication_factor' : 3};
+DESCRIBE KEYSPACES;
+CREATE KEYSPACE mykeyspace WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'replication_factor' : 1};
 use mykeyspace;
 DESCRIBE KEYSPACE mykeyspace;
 CREATE TABLE users ( user_id int, fname text, lname text, PRIMARY KEY((user_id)));
