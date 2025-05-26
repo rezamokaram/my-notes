@@ -72,3 +72,12 @@ CREATE TABLE user_logs (
 - **Partition Key**: `user_id` → which node stores the data
 - **Clustering Key**: `timestamp` → sorts logs by time within that user
 - **Composite Primary Key**: (`user_id`, `timestamp`)
+
+## default time order
+
+in scylladb, default order of times is ASC  
+we can set it as DESC by:
+
+```cql
+with clustering order by (time DESC)
+```
