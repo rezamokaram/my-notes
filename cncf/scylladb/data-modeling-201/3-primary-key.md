@@ -81,3 +81,10 @@ we can set it as DESC by:
 ```cql
 with clustering order by (time DESC)
 ```
+
+## Best Practices for selecting a partition and clustering key
+
+1. Partitions are not too small.
+1. No large partitions
+1. Adequate per query (query according to partition key)
+1. The tradeoff of all expected queries
