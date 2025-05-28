@@ -6,7 +6,7 @@
 - Query 2: Update a pet’s health information
 - Query 3: Read pet’s health information on a given day
 
-In a real-world use case, we would have to develop these queries further and think about the conceptual data model (the entities and the relationships between them). 
+In a real-world use case, we would have to develop these queries further and think about the conceptual data model (the entities and the relationships between them).
 
 ## Some important things to keep in mind
 
