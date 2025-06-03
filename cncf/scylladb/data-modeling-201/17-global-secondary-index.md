@@ -39,7 +39,6 @@ The CREATE INDEX statement is used to create a new (automatic) secondary index f
 
 ## another explanation
 
-What is a Global Secondary Index (GSI) in ScyllaDB?
 In databases like ScyllaDB, data is usually stored and looked up using the Primary Key. But sometimes, you want to search for data using a different column (not the primary key). To do this, you can use a Secondary Index.
 
 Types of Secondary Indexes:
