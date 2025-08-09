@@ -1,42 +1,45 @@
-- [Kubernetes Manifest](#kubernetes-manifest)
-  - [Why Use Manifests?](#why-use-manifests)
+# K8S beginning
+
+- [K8S beginning](#k8s-beginning)
+  - [Kubernetes Manifest](#kubernetes-manifest)
+    - [Why Use Manifests?](#why-use-manifests)
   - [API Resources](#api-resources)
   - [Explain](#explain)
-- [Pods](#pods)
+  - [Pods](#pods)
   - [Key Characteristics of a Pod](#key-characteristics-of-a-pod)
   - [Applying The Manifest](#applying-the-manifest)
-- [ReplicaSet](#replicaset)
+  - [ReplicaSet](#replicaset)
   - [Key Features of ReplicaSet](#key-features-of-replicaset)
   - [ReplicaSet Example Yaml file](#replicaset-example-yaml-file)
   - [Comparison Between ReplicaSet \& Pod](#comparison-between-replicaset--pod)
   - [Difference Between ReplicaSet \& Deployment](#difference-between-replicaset--deployment)
-- [Deployment](#deployment)
+  - [Deployment](#deployment)
   - [Key Concepts of Kubernetes Deployment](#key-concepts-of-kubernetes-deployment)
   - [Deployment Example Yaml File](#deployment-example-yaml-file)
-- [DaemonSet](#daemonset)
+  - [DaemonSet](#daemonset)
   - [How Does It Work?](#how-does-it-work)
   - [When Do We Use DaemonSet?](#when-do-we-use-daemonset)
   - [DaemonSet Manifest Example](#daemonset-manifest-example)
   - [Difference Between Deployment \& DaemonSet](#difference-between-deployment--daemonset)
   - [Quick Summary](#quick-summary)
-- [StatefulSet](#statefulset)
+  - [StatefulSet](#statefulset)
   - [What is a StatefulSet?](#what-is-a-statefulset)
   - [Features of StatefulSet](#features-of-statefulset)
   - [When to Use StatefulSet](#when-to-use-statefulset)
   - [Example StatefulSet Manifest](#example-statefulset-manifest)
-- [Job](#job)
-  - [Key Features of a Job:](#key-features-of-a-job)
-  - [Types of Jobs:](#types-of-jobs)
+  - [Job](#job)
+  - [Key Features of a Job](#key-features-of-a-job)
+  - [Types of Jobs](#types-of-jobs)
   - [Use Cases for Jobs in Kubernetes](#use-cases-for-jobs-in-kubernetes)
   - [Example Of Job Manifest](#example-of-job-manifest)
-- [CronJob](#cronjob)
+  - [CronJob](#cronjob)
   - [How Kubernetes CronJob Works](#how-kubernetes-cronjob-works)
   - [Key Components](#key-components)
   - [Use Cases of Kubernetes CronJobs](#use-cases-of-kubernetes-cronjobs)
   - [Example Of CronJon Manifest](#example-of-cronjon-manifest)
   - [Understanding the Schedule Format (cron Expression)](#understanding-the-schedule-format-cron-expression)
   - [Concurrency Handling (.spec.concurrencyPolicy)](#concurrency-handling-specconcurrencypolicy)
-- [Service](#service)
+  - [Service](#service)
   - [Why do we need Services?](#why-do-we-need-services)
   - [Types of Kubernetes Services](#types-of-kubernetes-services)
     - [1. ClusterIP (Default)](#1-clusterip-default)
@@ -48,10 +51,12 @@
   - [Summary](#summary)
   - [Manifest Examples](#manifest-examples)
 
-# Kubernetes Manifest
+## Kubernetes Manifest
+
 A Kubernetes manifest is a YAML (or JSON) file that defines the desired state of a Kubernetes object. It is used to create, update, and manage resources like Pods, Deployments, Services, ConfigMaps, etc.
 
-## Why Use Manifests?
+### Why Use Manifests?
+
 - Allows declarative management (you define what you want, and Kubernetes ensures it happens).  
 - Can be stored in version control (GitOps) for better tracking.  
 - Supports automation and scalability.  
@@ -63,6 +68,7 @@ The kubectl api-resources command helps you understand what resources are availa
 ```sh  
     kubectl api-resources  
 ```  
+
 | `kubectl api-resources` Field | How It Helps in Manifest |
 |-------------------------------|-------------------------|
 | **APIVERSION** (`apps/v1`, `v1`) | Used in `apiVersion` field of the manifest. |
@@ -108,17 +114,21 @@ FIELDS:
     Populated by the system. Read-only. More info:
     https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 ```
-for more detail in given fields we can use dot and then the pods.<FIELD-NAME>:
+
+for more detail in given fields we can use dot and then the pods.<FIELD_NAME>:
+
 ```sh
     kubectl explain pods.metadata
 ```
+
 Now, let's explore and review some of these Kubernetes API resources in detail.  
 
-# Pods  
+## Pods
 
 A **Pod** is the smallest and most basic deployable unit in Kubernetes. It represents a single instance of a running process in the cluster. A pod can contain one or more **containers**, which share the same network and storage resources.
 
 ## Key Characteristics of a Pod
+
 1. **Single or Multiple Containers**  
    - Most commonly, a pod runs a single container (e.g., a web server or database).  
    - In some cases, multiple containers are deployed together in one pod to share storage and network resources.
@@ -137,6 +147,7 @@ A **Pod** is the smallest and most basic deployable unit in Kubernetes. It repre
 ## Applying The Manifest
 
 an example manifest:
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -160,9 +171,11 @@ To deploy this pod to a Kubernetes cluster, save the YAML file (e.g., pod.yaml) 
 ```
 
 To delete a specific pod, use:
+
 ```sh
 kubectl delete pod <pod-name>
 ```
+
 the pod name must match the pod name that you assign in manifest.  
 
 If a pod is stuck in a terminating state, you can force delete it:
@@ -170,6 +183,7 @@ If a pod is stuck in a terminating state, you can force delete it:
 ```sh
 kubectl delete pod <pod-name> --grace-period=0 --force
 ```
+
 ⚠ Use this with caution, as it forcefully removes the pod without waiting for a graceful shutdown.  
 
 If the pod was created using a YAML file (pod.yaml), delete it with:
@@ -179,16 +193,19 @@ kubectl delete -f pod.yaml
 ```
 
 Delete Pods by Label Selector:
+
 ```sh
 kubectl delete pods -l app=my-app
 ```
+
 and so on.  
 
-# ReplicaSet
+## ReplicaSet
 
 A ReplicaSet (RS) is a Kubernetes resource that ensures a specified number of identical pods are always running. If a pod crashes or is deleted, the ReplicaSet automatically creates a new one to maintain the desired count.
 
 ## Key Features of ReplicaSet
+
 - Ensures high availability by maintaining a fixed number of replicas
 - Automatically recreates pods if they fail
 - Uses selectors and labels to manage pods
@@ -222,20 +239,25 @@ spec:
 ```
 
 To apply the ReplicaSet:
+
 ```sh
 kubectl apply -f replicaset.yaml
 ```
 
 Check the ReplicaSet:
+
 ```sh
 kubectl get rs
 ```
 
 For request inside the cluster:
+
 ```sh
 kubectl run curlpod --image=alpine --restart=Never -it -- sh
 ```
+
 Delete and Recreate the ReplicaSet:
+
 ```sh  
 # Delete the old ReplicaSet
 kubectl delete rs my-replicaset --cascade=orphan
@@ -246,6 +268,7 @@ kubectl delete pod --selector=app=my-app
 ```  
 
 To scale replicaset(make it 10 replicas and then 1):  
+
 ```sh
 kubectl scale replicaset test --replicas 10
 kubectl scale replicaset test --replicas 1
@@ -265,7 +288,6 @@ kubectl scale replicaset test --replicas 1
 
 🔹 **Pods are the basic unit of deployment, but ReplicaSets ensure high availability by managing multiple replicas of a Pod.**
 
-
 ## Difference Between ReplicaSet & Deployment
 
 | Feature         | ReplicaSet | Deployment |
@@ -277,7 +299,7 @@ kubectl scale replicaset test --replicas 1
 
 🔹 **Use Deployment instead of ReplicaSet** unless you specifically need fine-grained control over pod scaling.
 
-# Deployment  
+## Deployment  
 
 A Kubernetes Deployment is a resource object in Kubernetes that provides declarative updates for applications. It helps in managing, scaling, and rolling out updates to applications efficiently.
 
@@ -309,6 +331,7 @@ Deployment
           ├── Pod-4
           ├── Pod-5
 ```  
+
 ## Deployment Example Yaml File
 
 ```yaml
@@ -346,51 +369,60 @@ spec:
 ```
 
 To apply the manifest:  
+
 ```sh
 kubectl apply -f deployment.yaml
 ```
 
 Check the deployment status:
+
 ```sh
 kubectl get deployments
 ```
 
 Scale up/down:
+
 ```sh
 kubectl scale deployment test --replicas=5
 ```
 
 Change the image:
+
 ```sh
 kubectl set image deployment/test my-app-container=new-image:latest
 ```
 
 Rollback to a previous version:
+
 ```sh
 kubectl rollout undo deployment test
 ```
 
 Check the history of deployment revisions:
+
 ```sh
 rollout history deployment test
 ```
 
 Check the information of a specific revision:
+
 ```sh
 kubectl rollout history deployment test --revision 4
 ```
 
 Rollback to a specific revision of deployment:
+
 ```sh
 kubectl rollout undo deployment test --to-revision 4
 ```
 
 To run a command inside one of pods:
+
 ```sh
 kubectl exec test-68b7569f6d-7q6ff -- nginx -v
 ```
 
-# DaemonSet  
+## DaemonSet  
 
 A DaemonSet is a special kind of Workload Resource in Kubernetes that ensures exactly *one Pod is running on every Node* in the cluster (or on a specific group of Nodes).
 
@@ -398,6 +430,7 @@ You can think of it like:
 `Run one copy of this Pod on every Node.`
 
 ## How Does It Work?
+
 - When you create a DaemonSet, Kubernetes automatically schedules one Pod on every Node.
 
 - If a new Node is added to the cluster, Kubernetes will automatically run a Pod on it.
@@ -407,6 +440,7 @@ You can think of it like:
 - You can also limit the DaemonSet to run on specific Nodes using node selectors or node affinity.
 
 ## When Do We Use DaemonSet?
+
 DaemonSets are used when you want to run background or infrastructure services on every Node, such as:
 
 - Log collectors → e.g., Fluentd, Filebeat
@@ -416,7 +450,6 @@ DaemonSets are used when you want to run background or infrastructure services o
 - Security agents → e.g., Intrusion detection agents
 
 - Network plugins → e.g., CNI plugins
-
 
 ## DaemonSet Manifest Example
 
@@ -458,22 +491,24 @@ spec:
 | Example: Run 5 replicas of Nginx                   | Example: Run 1 Fluentd agent on every Node         |
 
 ## Quick Summary
+
 1. DaemonSet = 1 Pod per Node
 2. Used for Node-level services
 3. Auto-scales when Nodes are added or removed
 4. Can be targeted to specific Nodes
 
-# StatefulSet
+## StatefulSet
 
 StatefulSet is one of the most important workload resources in Kubernetes, especially when you’re dealing with apps that need stable network identity, stable storage, and ordered deployment.
 
 ## What is a StatefulSet?
 
-    A StatefulSet is a Kubernetes resource used to manage stateful applications.
+  A StatefulSet is a Kubernetes resource used to manage stateful applications.
 
-    While Deployment and ReplicaSet are used for stateless applications (e.g., web servers), StatefulSet is used when each Pod has to maintain state or has unique configuration, identity, and storage.
+  While Deployment and ReplicaSet are used for stateless applications (e.g., web servers), StatefulSet is used when each Pod has to maintain state or has unique configuration, identity, and storage.
 
 ## Features of StatefulSet
+
 1. Stable & Unique Pod Names  
 Pods are named in an ordered pattern:
 pod-name-0, pod-name-1, pod-name-2, ...
@@ -486,15 +521,17 @@ pod-name-0.myservice
 Each Pod can have its own PersistentVolumeClaim (PVC).  
 The volume is not deleted when the Pod is deleted.
 
-4. Ordered Deployment & Scaling   
-Pods are started and terminated in order (0 → 1 → 2).   
+4. Ordered Deployment & Scaling  
+Pods are started and terminated in order (0 → 1 → 2).  
 Ensures ordered rollouts and rollbacks.
 
-5. Ordered Rolling Updates   
+5. Ordered Rolling Updates  
 Updates happen one Pod at a time, maintaining order.
 
 ## When to Use StatefulSet
+
 Use StatefulSet when you need:  
+
 - Databases (e.g., MySQL, MongoDB, Cassandra)
 - Queues like Kafka, RabbitMQ
 - Distributed systems that need unique identities and persistent storage
@@ -543,22 +580,25 @@ spec:
 ```
 
 To check PersistentVolumeClaims:
+
 ```sh
 kubectl get pvc
 ```
 
-# Job  
+## Job  
 
 a Job is a resource that is used to run a one-time or batch task until completion. Unlike Deployments, which manage long-running applications, a Job ensures that a specific number of pods successfully complete their tasks.
 
-## Key Features of a Job:
+## Key Features of a Job
+
 1. Ensures Completion: A Job creates one or more pods and runs them until they complete successfully.
 
 2. Automatic Restart: If a pod fails, Kubernetes will restart it based on the Job’s restart policy.
 
 3. Parallel Execution: You can run multiple pods in parallel to complete a batch of work.
 
-## Types of Jobs:
+## Types of Jobs
+
 1. **Single Job (default)** – Runs a single pod until it succeeds.
 
 2. **Parallel Job** – Runs multiple pods in parallel for faster execution.
@@ -566,6 +606,7 @@ a Job is a resource that is used to run a one-time or batch task until completio
 3. **Work Queue Job** – Uses a queue-based system where each pod picks up tasks from a queue.  
 
 ## Use Cases for Jobs in Kubernetes
+
 - Data processing tasks (ETL jobs)
 
 - Database migrations
@@ -593,11 +634,12 @@ spec:
 ```  
 
 To check jobs:
+
 ```sh
 kubectl get job
 ```
 
-# CronJob  
+## CronJob  
 
 A Kubernetes (k8s) CronJob is used to run scheduled tasks in a Kubernetes cluster, similar to how you schedule jobs using `cron` in Linux. It allows you to run a job at a specific time or interval.  
 
@@ -606,6 +648,7 @@ A Kubernetes (k8s) CronJob is used to run scheduled tasks in a Kubernetes cluste
 A CronJob in Kubernetes creates a Job object on a schedule you define. Each Job runs a Pod that performs the task and then terminates.
 
 ## Key Components
+
 1. Schedule (.spec.schedule) – Defines when the job should run using a cron expression.
 
 2. Job Template (.spec.jobTemplate) – Specifies the actual job that will run.
@@ -619,12 +662,13 @@ A CronJob in Kubernetes creates a Job object on a schedule you define. Each Job 
 6. Failed Jobs History (.spec.failedJobsHistoryLimit) – Limits how many failed job records are kept.
 
 ## Use Cases of Kubernetes CronJobs
+
 - ✅ Database backups – Run a backup job at midnight daily.
 - ✅ Log rotation – Clean up old logs every week.
 - ✅ Automated reports – Generate and send reports on a schedule.
 - ✅ Data processing – Process batches of data periodically.
 
-## Example Of CronJon Manifest 
+## Example Of CronJon Manifest  
 
 ```yaml
 apiVersion: batch/v1
@@ -659,6 +703,7 @@ for learning schedule patterns there is a good [website](https://crontab.guru/)
 ```
 
 ## Concurrency Handling (.spec.concurrencyPolicy)
+
 1. `Allow` (default) → Allows multiple jobs to run simultaneously.
 
 2. `Forbid` → Prevents a new job from starting if the previous job is still running.
@@ -670,11 +715,12 @@ spec:
   concurrencyPolicy: Forbid
 ```
 
-# Service
+## Service
 
 A **Service** is an abstraction that defines a stable way to access a set of **Pods**. Since Pods are ephemeral and their IP addresses change frequently, a **Service** provides a fixed IP and DNS name, ensuring reliable communication.
 
 ## Why do we need Services?
+
 - Pods are dynamic; their IP addresses change when restarted or rescheduled.
 - We need a consistent way for other services, applications, or external users to access these Pods.
 - Load balancing is often required across multiple Pods.
@@ -684,6 +730,7 @@ A **Service** is an abstraction that defines a stable way to access a set of **P
 ## Types of Kubernetes Services
 
 ### 1. ClusterIP (Default)
+
 - Exposes the service internally within the cluster.
 - Cannot be accessed from outside the cluster.
 - Useful for internal communication between microservices.
@@ -703,6 +750,7 @@ spec:
 ```
 
 ### 2. NodePort
+
 - Exposes the service externally using a port on each Node.
 - The service is accessible via `NodeIP:NodePort`.
 - Not ideal for production as the port range is limited (30000–32767).
@@ -724,6 +772,7 @@ spec:
 ```
 
 ### 3. LoadBalancer
+
 - Creates an external load balancer (requires cloud provider support, e.g., AWS, GCP, Azure).
 - Exposes the service to the internet.
 
@@ -743,6 +792,7 @@ spec:
 ```
 
 ### 4. ExternalName
+
 - Maps a Kubernetes Service to an external DNS name instead of selecting Pods.
 - Used when you need to refer to external services (e.g., a database hosted outside Kubernetes).
 
@@ -759,6 +809,7 @@ spec:
 ---
 
 ## How Services Work?
+
 - Services use **selectors** to find matching Pods (though it's optional).
 - Kubernetes assigns a **ClusterIP** and **DNS name** (e.g., `my-service.default.svc.cluster.local`).
 - **Kube-proxy** helps route traffic from the service to the correct Pod using **iptables** or **IPVS**.
@@ -766,6 +817,7 @@ spec:
 ---
 
 ## 🔹 Bonus: Headless Services
+
 - If you set `clusterIP: None`, Kubernetes does not provide a virtual IP.
 - Instead, it returns a list of Pod IPs when queried via DNS.
 - Useful for applications that handle their own load balancing (e.g., databases like Cassandra).
@@ -786,6 +838,7 @@ spec:
 ---
 
 ## Summary
+
 | Service Type     | Accessibility | Use Case |
 |-----------------|--------------|----------|
 | ClusterIP (default) | Internal only | Microservice communication |
@@ -832,4 +885,3 @@ spec:
         - name: nginx
           image: nginx:alpine
 ```
-
