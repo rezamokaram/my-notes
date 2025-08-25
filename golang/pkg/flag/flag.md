@@ -1,6 +1,7 @@
 # Go `flag` Package Functions
 
 ## **Defining Flags**
+
 1. **`flag.String(name string, defaultValue string, usage string) *string`**  
    - Defines a `string` flag with a default value and help text. Returns a pointer.
 
@@ -28,10 +29,13 @@
 ---
 
 ## **Parsing and Handling Flags**
+
 9. **`flag.Parse()`**  
+
    - Parses all defined flags from command-line arguments.
 
 10. **`flag.Args() []string`**  
+
    - Returns remaining non-flag command-line arguments after parsing.
 
 11. **`flag.NArg() int`**  
