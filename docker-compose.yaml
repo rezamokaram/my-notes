@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  mkdocs:
+    image: squidfunk/mkdocs-material:latest
+    ports:
+      - "2442:2442"
+    volumes:
+      - ./:/docs
+    entrypoint: mkdocs serve -a 0.0.0.0:2442
