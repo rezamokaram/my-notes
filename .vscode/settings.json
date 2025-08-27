@@ -1,7 +1,13 @@
 {
     "cSpell.words": [
+        "dbus",
+        "hald",
         "heartrate",
         "jadi",
-        "mkdocs"
+        "kobj",
+        "kobject",
+        "kobjects",
+        "mkdocs",
+        "ssize"
     ]
 }
