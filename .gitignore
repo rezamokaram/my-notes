@@ -1,7 +1,12 @@
+# golang
 *vendor*
+
+# python
+*venv*
 
 .vscode/*
 !.vscode/settings.json
+!.vscode/launch.json
 
 .idea
 .obsidian

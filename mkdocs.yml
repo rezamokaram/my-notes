@@ -1,0 +1,26 @@
+site_name: My Notes Documentation
+
+# nav:
+#   - Home: index.md
+#   - CNCF: cncf/
+#       # - Overview: cncf/index.md
+#   - CRS: crs/
+#       # - Overview: crs/index.md
+#   - DSA: dsa/
+#       # - Overview: dsa/index.md
+#   - Golang:
+#       # - Overview: golang/index.md
+#   - Linux: linux/
+#       # - Overview: linux/index.md
+#   # - Security: 
+#       # - Overview: sec/index.md
+#   - Software Engineering:
+#       # - Overview: software-engineering/index.md
+
+docs_dir: ./notes
+
+theme:
+  # name: readthedocs
+  # name: mkdocs 
+  name: material
+  color_mode: dark

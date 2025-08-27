@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run MkDocs Serve",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/venv/bin/mkdocs",
+      "args": [
+        "serve",
+        "--dev-addr=127.0.0.1:2442"
+    ],
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "justMyCode": true
+    }
+  ]
+}

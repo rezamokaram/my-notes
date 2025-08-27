@@ -19,6 +19,7 @@
 sharing the data bases between microservices tightly couples, their code bases and their teams that causing a lot of coordination overhead.  
 
 ## Rule
+
 first rule of microservices databases is we must to have db per service  
 if someone needs to access or change this data, we must use service api  
 this helps us to scale our org:

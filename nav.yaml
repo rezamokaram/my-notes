@@ -1,0 +1,149 @@
+nav:
+  - cncf:
+    - cncf.md: cncf/cncf.md
+    - etcd:
+      - lease.md: cncf/etcd/lease.md
+      - lock.md: cncf/etcd/lock.md
+    - helm:
+      - commands.md: cncf/helm/commands.md
+      - concepts.md: cncf/helm/concepts.md
+    - kubernetes:
+      - beginning.md: cncf/kubernetes/beginning.md
+      - concepts:
+        - self-healing.md: cncf/kubernetes/concepts/self-healing.md
+      - resource.md: cncf/kubernetes/resource.md
+    - prometheus:
+      - exp.md: cncf/prometheus/exp.md
+      - sample:
+    - redis:
+      - core.md: cncf/redis/core.md
+      - refrence.md: cncf/redis/refrence.md
+      - stack.md: cncf/redis/stack.md
+    - scylladb:
+      - data-modeling-201:
+        - 1-scylla-data-modeling.md: cncf/scylladb/data-modeling-201/1-scylla-data-modeling.md
+        - 10-io-max-nr.md: cncf/scylladb/data-modeling-201/10-io-max-nr.md
+        - 11-data-modeling-process.md: cncf/scylladb/data-modeling-201/11-data-modeling-process.md
+        - 12-common-data-types.md: cncf/scylladb/data-modeling-201/12-common-data-types.md
+        - 13-ttl.md: cncf/scylladb/data-modeling-201/13-ttl.md
+        - 14-counter.md: cncf/scylladb/data-modeling-201/14-counter.md
+        - 15-udt.md: cncf/scylladb/data-modeling-201/15-udt.md
+        - 16-mv.md: cncf/scylladb/data-modeling-201/16-mv.md
+        - 17-global-secondary-index.md: cncf/scylladb/data-modeling-201/17-global-secondary-index.md
+        - 18-local-secondary-index.md: cncf/scylladb/data-modeling-201/18-local-secondary-index.md
+        - 19-compaction.md: cncf/scylladb/data-modeling-201/19-compaction.md
+        - 2-cql.md: cncf/scylladb/data-modeling-201/2-cql.md
+        - 20-filtering.md: cncf/scylladb/data-modeling-201/20-filtering.md
+        - 21-token-aware.md: cncf/scylladb/data-modeling-201/21-token-aware.md
+        - 22-lwt.md: cncf/scylladb/data-modeling-201/22-lwt.md
+        - 23-thrift-vs-cql.md: cncf/scylladb/data-modeling-201/23-thrift-vs-cql.md
+        - 24-hinted-handoff.md: cncf/scylladb/data-modeling-201/24-hinted-handoff.md
+        - 25-uniform-result-sets.md: cncf/scylladb/data-modeling-201/25-uniform-result-sets.md
+        - 26-lwt-consensus.md: cncf/scylladb/data-modeling-201/26-lwt-consensus.md
+        - 27-replication-groups.md: cncf/scylladb/data-modeling-201/27-replication-groups.md
+        - 28-leader-role.md: cncf/scylladb/data-modeling-201/28-leader-role.md
+        - 29-paxos.md: cncf/scylladb/data-modeling-201/29-paxos.md
+        - 3-primary-key.md: cncf/scylladb/data-modeling-201/3-primary-key.md
+        - 30-ballot-number.md: cncf/scylladb/data-modeling-201/30-ballot-number.md
+        - 31-fraud-detection.md: cncf/scylladb/data-modeling-201/31-fraud-detection.md
+        - 32-cdc.md: cncf/scylladb/data-modeling-201/32-cdc.md
+        - 33-cdc-consumption.md: cncf/scylladb/data-modeling-201/33-cdc-consumption.md
+        - 34-cdc-under-the-hood.md: cncf/scylladb/data-modeling-201/34-cdc-under-the-hood.md
+        - 35-cdc-summary.md: cncf/scylladb/data-modeling-201/35-cdc-summary.md
+        - 4-clustering-key-query.md: cncf/scylladb/data-modeling-201/4-clustering-key-query.md
+        - 5-allow-filtering.md: cncf/scylladb/data-modeling-201/5-allow-filtering.md
+        - 6-choosing-keys.md: cncf/scylladb/data-modeling-201/6-choosing-keys.md
+        - 7-upsert.md: cncf/scylladb/data-modeling-201/7-upsert.md
+        - 8-data-modeling-review.md: cncf/scylladb/data-modeling-201/8-data-modeling-review.md
+        - 9-scylla-vs-relational.md: cncf/scylladb/data-modeling-201/9-scylla-vs-relational.md
+        - todo.md: cncf/scylladb/data-modeling-201/todo.md
+      - essentials-101:
+        - 0-reference.md: cncf/scylladb/essentials-101/0-reference.md
+        - 1-design-decisions.md: cncf/scylladb/essentials-101/1-design-decisions.md
+        - 10-rebalancing.md: cncf/scylladb/essentials-101/10-rebalancing.md
+        - 11-shard.md: cncf/scylladb/essentials-101/11-shard.md
+        - 12-simple-cluster.md: cncf/scylladb/essentials-101/12-simple-cluster.md
+        - 13-snitch.md: cncf/scylladb/essentials-101/13-snitch.md
+        - 14-consistent-hash.md: cncf/scylladb/essentials-101/14-consistent-hash.md
+        - 15-shard-aware-routing.md: cncf/scylladb/essentials-101/15-shard-aware-routing.md
+        - 16-review.md: cncf/scylladb/essentials-101/16-review.md
+        - 2-partition-key.md: cncf/scylladb/essentials-101/2-partition-key.md
+        - 3-token-range.md: cncf/scylladb/essentials-101/3-token-range.md
+        - 4-replication-factor.md: cncf/scylladb/essentials-101/4-replication-factor.md
+        - 5-consistency-level.md: cncf/scylladb/essentials-101/5-consistency-level.md
+        - 6-keyspaces.md: cncf/scylladb/essentials-101/6-keyspaces.md
+        - 7-high-avalibility.md: cncf/scylladb/essentials-101/7-high-avalibility.md
+        - 7.1-node-goes-down.md: cncf/scylladb/essentials-101/7.1-node-goes-down.md
+        - 8-read-write-path.md: cncf/scylladb/essentials-101/8-read-write-path.md
+        - 9-simple-usage-docker.md: cncf/scylladb/essentials-101/9-simple-usage-docker.md
+      - todo.md: cncf/scylladb/todo.md
+  - crs:
+    - full-eda.md: crs/full-eda.md
+  - dsa:
+    - bloom-filter.md: dsa/bloom-filter.md
+    - cuckoo-filter.md: dsa/cuckoo-filter.md
+    - hyperloglog.md: dsa/hyperloglog.md
+    - scc.md: dsa/scc.md
+  - golang:
+    - basic:
+      - 000-temp:
+      - 001-interface:
+      - 002-pointer:
+      - 003-zerovalue:
+      - 004-goroutine:
+      - 005-testp:
+      - 006-import:
+        - handler:
+        - service:
+      - 007-worker-pool:
+      - 008-theread-safe:
+      - 009-linked-list:
+      - 010-mutable:
+    - bootstrapping.md: golang/bootstrapping.md
+    - concorency-patterns.md: golang/concorency-patterns.md
+    - pkg:
+      - config:
+        - config.md: golang/pkg/config/config.md
+        - sample:
+          - ce:
+          - de:
+          - vp:
+      - flag:
+        - flag.md: golang/pkg/flag/flag.md
+      - fx:
+        - 001-explain.md: golang/pkg/fx/001-explain.md
+    - todo.md: golang/todo.md
+  - index.md: index.md
+  - linux:
+    - containers.md: linux/containers.md
+    - essentials:
+      - 001.md: linux/essentials/001.md
+    - namespace.md: linux/namespace.md
+  - sec:
+    - Injection:
+      - lpic1:
+        - 001.md: sec/Injection/lpic1/001.md
+        - 002.md: sec/Injection/lpic1/002.md
+        - 003.md: sec/Injection/lpic1/003.md
+      - resources:
+      - simpleCI:
+        - outBoundServer:
+        - vulnerableServer:
+      - sqliLab:
+  - software-engineering:
+    - Idempotency.md: software-engineering/Idempotency.md
+    - acid.md: software-engineering/acid.md
+    - base.md: software-engineering/base.md
+    - cap.md: software-engineering/cap.md
+    - cluster-topologies.md: software-engineering/cluster-topologies.md
+    - design-abstraction-spectrum.md: software-engineering/design-abstraction-spectrum.md
+    - distributed-workflow-management.md: software-engineering/distributed-workflow-management.md
+    - fault-tolerance.md: software-engineering/fault-tolerance.md
+    - gossip-protocol.md: software-engineering/gossip-protocol.md
+    - pgo.md: software-engineering/pgo.md
+    - predictability.md: software-engineering/predictability.md
+    - raft.md: software-engineering/raft.md
+    - rbac.md: software-engineering/rbac.md
+    - serialize.md: software-engineering/serialize.md
+    - solid.md: software-engineering/solid.md
+    - spof.md: software-engineering/spof.md
