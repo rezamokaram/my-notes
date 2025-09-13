@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "bootable",
         "dbus",
         "hald",
         "heartrate",
@@ -8,6 +9,7 @@
         "kobject",
         "kobjects",
         "mkdocs",
-        "ssize"
+        "ssize",
+        "Vinit"
     ]
 }
