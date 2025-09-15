@@ -6,10 +6,12 @@
         "hald",
         "heartrate",
         "jadi",
+        "journalctl",
         "kobj",
         "kobject",
         "kobjects",
         "mkdocs",
+        "printk",
         "ssize",
         "userspace",
         "Vinit"
