@@ -2,6 +2,8 @@
     "cSpell.words": [
         "bootable",
         "dbus",
+        "distro",
+        "distros",
         "grubx",
         "hald",
         "heartrate",
@@ -12,7 +14,10 @@
         "kobjects",
         "mkdocs",
         "printk",
+        "runlevel",
+        "Runlevels",
         "ssize",
+        "telinit",
         "userspace",
         "Vinit"
     ]
