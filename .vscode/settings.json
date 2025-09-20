@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "ACPI",
+        "acpid",
         "bootable",
         "dbus",
         "distro",
@@ -13,6 +14,8 @@
         "kobj",
         "kobject",
         "kobjects",
+        "logind",
+        "mesg",
         "mkdocs",
         "poweroff",
         "printk",
