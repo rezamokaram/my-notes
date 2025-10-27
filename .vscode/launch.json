@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "Run MkDocs Serve",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/venv/bin/mkdocs",
       "args": [

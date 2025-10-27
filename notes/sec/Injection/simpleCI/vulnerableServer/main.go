@@ -40,14 +40,14 @@ func HandelFunc() echo.HandlerFunc {
 
 		// println(cmd)
 
-		out, errout, err := Shellout("ls -ltr | grep " + req.Str)
+		out, errOut, err := ShellOut("ls -ltr | grep " + req.Str)
 		if err != nil {
 			log.Printf("error: %v\n", err)
 		}
 		fmt.Println("--- stdout ---")
 		fmt.Println(out)
 		fmt.Println("--- stderr ---")
-		fmt.Println(errout)
+		fmt.Println(errOut)
 
 		if err != nil {
 			println(err.Error())
@@ -64,7 +64,7 @@ func HandelFunc() echo.HandlerFunc {
 	}
 }
 
-func Shellout(command string) (string, string, error) {
+func ShellOut(command string) (string, string, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd := exec.Command(ShellToUse, "-c", command)

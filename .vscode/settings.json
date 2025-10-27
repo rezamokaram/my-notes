@@ -21,9 +21,12 @@
         "printk",
         "runlevel",
         "Runlevels",
+        "sqlc",
+        "sqlx",
         "ssize",
         "telinit",
         "userspace",
-        "Vinit"
+        "Vinit",
+        "SPOF"
     ]
 }
