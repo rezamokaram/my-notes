@@ -3,6 +3,7 @@
         "ACPI",
         "acpid",
         "bootable",
+        "copyfrom",
         "dbus",
         "distro",
         "distros",
@@ -21,12 +22,12 @@
         "printk",
         "runlevel",
         "Runlevels",
+        "SPOF",
         "sqlc",
         "sqlx",
         "ssize",
         "telinit",
         "userspace",
-        "Vinit",
-        "SPOF"
+        "Vinit"
     ]
 }
