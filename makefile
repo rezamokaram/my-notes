@@ -9,7 +9,7 @@ setup:
 install: setup
 	. $(VENV)/bin/activate && pip install mkdocs && pip install mkdocs-material
 
-serve:
+serve: install
 	. $(VENV)/bin/activate && mkdocs serve -a 0.0.0.0:2442
 
 check:
