@@ -83,7 +83,7 @@ func main() {
 
 #### Key Takeaways
 
-- fx.Module("name", ...) groups multiple fx.Provide, fx.Invoke, and other options.
+- `fx.Module("name", ...)` groups multiple `fx.Provide`, `fx.Invoke`, and other options.
 
 - You can import modules from other packages and compose them.
 

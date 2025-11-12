@@ -54,3 +54,55 @@ In other words,
 - hooks **must not** block to run long-running tasks synchronously
 - hooks **should** schedule long-running tasks in background goroutines
 - shutdown hooks **should** stop the background work started by startup hooks
+
+## hook functions
+
+| Function             | Purpose                                      |
+| -------------------- | -------------------------------------------- |
+| `fx.New()`           | Create an Fx application                     |
+| `app.Run()`          | Start the app, block until it stops          |
+| `app.Start(ctx)`     | Start the app manually                       |
+| `app.Stop(ctx)`      | Stop the app manually                        |
+| `lifecycle.Append()` | Add `OnStart` and `OnStop` hooks             |
+| `fx.Invoke()`        | Run functions once dependencies are resolved |
+| `fx.Provide()`       | Register constructors for dependencies       |
+
+## example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "go.uber.org/fx"
+)
+
+func main() {
+    app := fx.New(
+        fx.Provide(NewServer),
+        fx.Invoke(RegisterHooks),
+    )
+
+    app.Run()
+}
+
+type Server struct{}
+
+func NewServer() *Server {
+    return &Server{}
+}
+
+func RegisterHooks(lc fx.Lifecycle, s *Server) {
+    lc.Append(fx.Hook{
+        OnStart: func(ctx context.Context) error {
+            fmt.Println("Server starting")
+            return nil
+        },
+        OnStop: func(ctx context.Context) error {
+            fmt.Println("Server stopping")
+            return nil
+        },
+    })
+}
+```

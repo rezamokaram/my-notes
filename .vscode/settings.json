@@ -20,6 +20,8 @@
         "mkdocs",
         "poweroff",
         "printk",
+        "Println",
+        "Replaceability",
         "runlevel",
         "Runlevels",
         "SPOF",
@@ -28,6 +30,7 @@
         "ssize",
         "telinit",
         "userspace",
-        "Vinit"
+        "Vinit",
+        "yourapp"
     ]
 }
