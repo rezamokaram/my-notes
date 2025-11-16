@@ -62,10 +62,10 @@ Distributing workload and aggregating results.
 ### Fan-Out, Fan-In Example
 
 ```go
-func generator(nums ...int) <-chan int {
+func generator(numbers ...int) <-chan int {
     out := make(chan int)
     go func() {
-        for _, n := range nums {
+        for _, n := range numbers {
             out <- n
         }
         close(out)
@@ -108,10 +108,10 @@ Sequential processing where each stage operates independently.
 ### Pipeline Pattern Example
 
 ```go
-func gen(nums ...int) <-chan int {
+func gen(numbers ...int) <-chan int {
     out := make(chan int)
     go func() {
-        for _, n := range nums {
+        for _, n := range numbers {
             out <- n
         }
         close(out)
@@ -131,8 +131,8 @@ func square(in <-chan int) <-chan int {
 }
 
 func main() {
-    nums := gen(2, 3, 4)
-    squares := square(nums)
+    numbers := gen(2, 3, 4)
+    squares := square(numbers)
 
     for n := range squares {
         fmt.Println(n)

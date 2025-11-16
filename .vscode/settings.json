@@ -31,6 +31,8 @@
         "telinit",
         "userspace",
         "Vinit",
+        "goroutines",
+        "gccgo",
         "yourapp"
     ]
 }
