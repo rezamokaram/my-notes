@@ -3,10 +3,13 @@
         "ACPI",
         "acpid",
         "bootable",
+        "chainloader",
         "copyfrom",
         "dbus",
         "distro",
         "distros",
+        "gccgo",
+        "goroutines",
         "grubx",
         "hald",
         "heartrate",
@@ -22,6 +25,7 @@
         "printk",
         "Println",
         "Replaceability",
+        "rootnoverify",
         "runlevel",
         "Runlevels",
         "SPOF",
@@ -31,8 +35,6 @@
         "telinit",
         "userspace",
         "Vinit",
-        "goroutines",
-        "gccgo",
         "yourapp"
     ]
 }
