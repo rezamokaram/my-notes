@@ -7,3 +7,5 @@
 ## writing a prjct with sqlc and fx in the style
 
 ## nd src
+
+## lpic1
