@@ -9,5 +9,3 @@
 ## nd src
 
 ## lpic1
-
-## gb
