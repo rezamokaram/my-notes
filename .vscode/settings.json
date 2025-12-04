@@ -21,6 +21,7 @@
         "logind",
         "lpic",
         "mesg",
+        "mkconfig",
         "mkdocs",
         "poweroff",
         "printk",
