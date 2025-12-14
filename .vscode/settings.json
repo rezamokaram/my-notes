@@ -33,9 +33,11 @@
         "mkconfig",
         "mkdocs",
         "noninteractive",
+        "NUMA",
         "poweroff",
         "printk",
         "Println",
+        "qcow",
         "readelf",
         "Replaceability",
         "rootnoverify",
@@ -49,6 +51,8 @@
         "userspace",
         "vdso",
         "Vinit",
+        "Virt",
+        "virtio",
         "yourapp"
     ]
 }
