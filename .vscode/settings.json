@@ -2,6 +2,7 @@
     "cSpell.words": [
         "ACPI",
         "acpid",
+        "AUFS",
         "bootable",
         "chainloader",
         "copyfrom",
@@ -43,6 +44,7 @@
         "rootnoverify",
         "runlevel",
         "Runlevels",
+        "Seccomp",
         "SPOF",
         "sqlc",
         "sqlx",
